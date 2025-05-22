@@ -1,7 +1,9 @@
 numpy
 pandas
 scikit-learn
+xgboost
 pyyaml
 aqme
 openbabel
 rdkit
+mordred
