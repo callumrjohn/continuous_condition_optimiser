@@ -1,0 +1,70 @@
+# --------------------------
+# Python
+# --------------------------
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# --------------------------
+# Jupyter
+# --------------------------
+.ipynb_checkpoints/
+
+# --------------------------
+# Virtual Environments
+# --------------------------
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+*.env
+
+# --------------------------
+# Data / Models
+# --------------------------
+data/
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.json
+*.xml
+*.yaml
+*.yml
+*.h5
+*.pkl
+*.joblib
+
+# --------------------------
+# Logs / Debugging
+# --------------------------
+*.log
+logs/
+
+# --------------------------
+# IDEs / Editors
+# --------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --------------------------
+# OS-specific
+# --------------------------
+.DS_Store      # macOS
+Thumbs.db      # Windows
+desktop.ini    # Windows
+
+# --------------------------
+# Miscellaneous
+# --------------------------
+*.bak
+*.tmp
+*.swp
