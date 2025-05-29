@@ -1,18 +1,19 @@
-import sys
-import os
 import numpy as np
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator, AllChem
 
 
+#----------------- Test function for invalid SMILES ----------------
 def test_invalid_smiles():
     smiles = "INVALID"
     mol = Chem.MolFromSmiles(smiles)
     assert mol is None  # RDKit returns None for bad SMILES
 
+
+#----------------- Test function for generating Morgan fingerprints ----------------
 def test_gen_morgan_fps():
-    from src.featurisation.morgan import gen_morgan_fps
+    from src.featurisation.morgan_gen import gen_morgan_fps
     # Mock data
     df = pd.DataFrame({
         "id": ['Caffeine', 
@@ -33,8 +34,9 @@ def test_gen_morgan_fps():
     assert fp_df["id"].tolist() == ['Caffeine', 'Lamivudine', 'Invalid'] # IDs should match input
 
 
+#----------------- Test function for generating RDKit descriptors ----------------
 def test_gen_rdkit_descriptors():
-    from src.featurisation.rdkit import gen_rdkit_descriptors
+    from src.featurisation.rdkit_gen import gen_rdkit_descriptors
     # Mock data
     df = pd.DataFrame({
         "id": ['Caffeine', 
