@@ -1,3 +1,7 @@
 featurisation:
   method: rdkit
   output_features_path: data/features/rdkit_descriptors.csv
+
+  parameters:
+    missingVal: np.NaN
+    silent: True
