@@ -28,15 +28,15 @@ env.bak/
 # --------------------------
 # Data / Models
 # --------------------------
-data/
-*.csv
+#data/
+#*.csv
 *.tsv
 *.xls
 *.xlsx
 *.json
 *.xml
-*.yaml
-*.yml
+#*.yaml
+#*.yml
 *.h5
 *.pkl
 *.joblib
