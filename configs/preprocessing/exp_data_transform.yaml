@@ -1,0 +1,18 @@
+preprocessing:  
+  id_vars:
+    - substrate_id
+    - reagent
+  # - extend if more columns need to be used as id_vars
+  var_name: tfa_equivalents
+  value_name: yield
+  drop_nan: True
+  
+  
+  one_hot_encode_columns:
+    - reagent
+  # - extend if mulitple columns need to be one-hot encoded
+  
+  drop_first: False
+  sparse_encode: False
+  
+  output_path: data/exp_data_processed.csv

@@ -1,6 +1,6 @@
 import pandas as pd
 
-def melt_df(df, id_vars, var_name = 'variable', value_name = 'value', drop_nan = True):
+def melt_data_df(df, id_vars, var_name = 'variable', value_name = 'value', drop_nan = True):
     # Reshape the DataFrame to long format
     long_df = df.melt(
         id_vars = id_vars,
@@ -22,3 +22,6 @@ def melt_df(df, id_vars, var_name = 'variable', value_name = 'value', drop_nan =
     long_df[value_name] = long_df[value_name].astype(float)
     
     return long_df
+
+
+    
