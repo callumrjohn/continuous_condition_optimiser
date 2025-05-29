@@ -1,0 +1,9 @@
+data:
+  yield_path: data/exp_data_processed.csv
+  features_dir: data/features/
+
+preprocessing:
+  join_key: substrate_id
+  join_type: inner
+  duplicate_selection: first
+  desc_labels: True

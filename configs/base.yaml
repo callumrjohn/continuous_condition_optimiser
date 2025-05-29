@@ -1,18 +1,39 @@
 data:
-  yield_path: data/yield_conditions.csv
-  join_keys:
-    - substrate_id
-  join_type: inner
+  yield_path: data/exp_data.csv
+  features_dir: data/features/
+  model_input_dir: data/model_input/
+  
 
 featurisation:
   smiles_path: data/smiles.csv
   smiles_column: smiles
   id_column: substrate_id
+  method: null
+  output_features_path: null
+  parameters:
+
+    radius: 2
+    n_bits: 2048
+    
+    descriptors: null  # null = all descriptors
+    ignore_3d: true    # Only use 2D descriptors
+    timeout: 10        # Max time in seconds per molecule
+    
+    missingVal: np.NaN
+    silent: True
+
+    n_jobs: -1
+
 
 preprocessing:
+  melt: True
+  encode: True
+  join_key: substrate_id
+  join_type: inner
+  duplicate_selection: first
   missing_strategy: drop
-  target_column: yield
   feature_columns: null
+
 
 training:
   test_size: 0.2
@@ -20,13 +41,16 @@ training:
   random_state: 42
   scoring_strategy: custom
 
+
 model:
   type: null
+
 
 logging:
   save_logs: true
   log_level: INFO
   log_dir: logs/
+
 
 output:
   save_model: true
