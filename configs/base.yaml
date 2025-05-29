@@ -1,0 +1,34 @@
+data:
+  yield_path: data/yield_conditions.csv
+  join_keys:
+    - substrate_id
+  join_type: inner
+
+featurisation:
+  smiles_path: data/smiles.csv
+  smiles_column: smiles
+  id_column: substrate_id
+
+preprocessing:
+  missing_strategy: drop
+  target_column: yield
+  feature_columns: null
+
+training:
+  test_size: 0.2
+  cv_folds: 5
+  random_state: 42
+  scoring_strategy: custom
+
+model:
+  type: null
+
+logging:
+  save_logs: true
+  log_level: INFO
+  log_dir: logs/
+
+output:
+  save_model: true
+  model_dir: models/
+  results_dir: results/

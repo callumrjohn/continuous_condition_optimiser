@@ -1,0 +1,7 @@
+featurisation:
+  method: morgan
+  output_features_path: data/features/morgan_fingerprints.csv
+
+  parameters:
+    radius: 2
+    n_bits: 2048

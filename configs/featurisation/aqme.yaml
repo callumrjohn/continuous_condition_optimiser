@@ -1,0 +1,10 @@
+featurisation:
+  method: aqme
+  output_features_path: data/features/aqme_descriptors.csv
+
+  parameters:
+    charge: 0
+    multiplicity: 1
+    conformer_generation: rdkit
+    optimiser: xTB
+    num_conformers: 1
