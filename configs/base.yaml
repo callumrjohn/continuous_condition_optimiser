@@ -33,6 +33,12 @@ preprocessing:
   duplicate_selection: first
   missing_strategy: drop
   feature_columns: null
+  var_name: null
+  value_name: null
+  drop_nan: True
+  one_hot_encode_columns:
+    - reagent
+  # - extend if mulitple columns need to be one-hot encoded
 
 
 training:
@@ -56,8 +62,9 @@ model:
 
 
 metrics:
-  bound_yield_threshold: 0.9
+  threshold: 0.9
   iter_step: 0.1
+  output_path: null
 
 
 logging:
@@ -67,7 +74,7 @@ logging:
 
 
 output:
-  save_model: true
+  save_model: false
   model_dir: models/
   results_dir: results/
   model_path: null

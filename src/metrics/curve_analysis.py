@@ -6,7 +6,7 @@ def interpolate_data(X, y, inter_step = 0.1):
     X = np.array(X)
     y = np.array(y)
 
-    x_interpolated, y_interpolated = [], []
+    X_interpolated, y_interpolated = [], []
 
     # Loop through each segment and interpolate linearly
     for i in range(len(X) - 1):
@@ -14,13 +14,13 @@ def interpolate_data(X, y, inter_step = 0.1):
         x_segment = np.linspace(X[i], X[i + 1], n_steps)
         y_segment = np.linspace(y[i], y[i + 1], n_steps)
         
-        x_interpolated.extend(x_segment)
+        X_interpolated.extend(x_segment)
         y_interpolated.extend(y_segment)
     
-    x_interpolated = np.array(x_interpolated)
+    X_interpolated = np.array(X_interpolated)
     y_interpolated = np.array(y_interpolated)
 
-    return x_interpolated, y_interpolated
+    return X_interpolated, y_interpolated
 
 
 # Find the high yielding region based on a threshold of the maximum y value.

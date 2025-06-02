@@ -32,9 +32,19 @@ Halogenation is a key transformation in pharmaceutical synthesis. Using a high-t
 ```bash
 git clone https://github.com/callumrjohn/halogenation_condition_prediction.git
 cd halogenation_condition_prediction
+```
+
+```bash
 # Install dependencies
 pip install -r requirements.txt
 ```
+or
+
+```bash
+# Install dependencies
+conda install --yes --file requirements.txt
+```
+If generating AQME descriptors, must be run in MacOS of Linux enviroment due to OpenBabel
 
 ## Running Predictions
 

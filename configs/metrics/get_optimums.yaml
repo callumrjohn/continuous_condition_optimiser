@@ -1,0 +1,16 @@
+data:
+  yield_path: data/exp_data.csv
+
+preprocessing:
+  melt: True
+  id_vars:
+    - substrate_id
+    - reagent
+  var_name: tfa_equivalents
+  value_name: yield
+  drop_nan: True
+
+metrics:
+  threshold: 0.9
+  iter_step: 0.1
+  output_path: data/metrics/exp_optimum_regions.csv
