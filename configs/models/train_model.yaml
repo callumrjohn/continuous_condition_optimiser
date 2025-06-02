@@ -1,0 +1,15 @@
+data:
+  model_input_dir: data/model_input/
+
+training:
+  columns_to_remove:
+    - substrate_id
+  target_variables: 
+    yield
+
+model:
+  model_dir: src/models/architectures/
+
+output:
+  output_model_dir: outputs/trained_models/
+

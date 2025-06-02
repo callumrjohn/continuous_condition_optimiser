@@ -2,7 +2,7 @@ model:
   type: "RandomForestRegressor"
   parameters:
     n_estimators: 100
-    max_depth: None
+    max_depth: null
     min_samples_split: 2
     min_samples_leaf: 1
     max_features: "sqrt"
@@ -11,5 +11,5 @@ model:
     n_jobs: -1
 
 output:
-  model_path: "models/random_forest_model.pkl"
-  metrics_path: "metrics/random_forest_metrics.json"
+  output_model_dir: outputs/trained_models/
+  output_metrics_dir: outputs/model_metrics/

@@ -1,5 +1,6 @@
 from xgboost import XGBRegressor
-from models.basemodel import BaseModel
+from src.models.basemodel import BaseModel
+
 class XGBModel(BaseModel):
     def __init__(self, **kwargs):
         self.model = XGBRegressor(**kwargs)

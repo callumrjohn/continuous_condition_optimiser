@@ -1,0 +1,12 @@
+# configs/models/model_svr.yaml
+
+model:
+  type: svr
+  kernel: rbf
+  C: 1.0
+  epsilon: 0.1
+  gamma: scale   # or "auto" — 'scale' is usually better
+
+output:
+  model_path: outputs/trained_models/svr_model.pkl
+  metrics_path: outputs/model_metrics/svr_metrics.json

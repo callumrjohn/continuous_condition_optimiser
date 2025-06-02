@@ -1,9 +1,9 @@
-from sklearn.svm import SVR
-from models.base_model import BaseModel
+from sklearn.ensemble import RandomForestRegressor
+from src.models.basemodel import BaseModel
 
-class SVRModel(BaseModel):
+class RFModel(BaseModel):
     def __init__(self, **kwargs):
-        self.model = SVR(**kwargs)
+        self.model = RandomForestRegressor(**kwargs)
 
     def train(self, X, y):
         self.model.fit(X, y)

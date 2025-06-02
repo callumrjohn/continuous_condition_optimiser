@@ -11,3 +11,7 @@ model:
   reg_lambda: 1.0        # L2 regularization
   n_jobs: -1
   random_state: 42
+
+output:
+  model_path: outputs/trained_models/xgboost_model.pkl
+  metrics_path: outputs/model_metrics/xgboost_metrics.json
