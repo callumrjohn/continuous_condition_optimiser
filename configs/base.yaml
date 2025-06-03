@@ -12,12 +12,14 @@ featurisation:
   output_features_path: null
   parameters:
 
+    # Morgan Fingerprints
     radius: 2
     n_bits: 2048
     
-    descriptors: null  # null = all descriptors
-    ignore_3d: true    # Only use 2D descriptors
-    timeout: 10        # Max time in seconds per molecule
+    # RDKit descriptors
+    descriptors: null
+    ignore_3d: true
+    timeout: 10
     
     missingVal: np.NaN
     silent: True
@@ -42,14 +44,19 @@ preprocessing:
 
 
 training:
+  columns_to_remove: null
+  target_variables: null
   test_size: 0.2
   cv_folds: 5
   random_state: 42
-  scoring_strategy: custom
+  scoring_strategy: null
 
 
 model:
   type: null
+  model_dir: src/models/architectures/
+  model_config_dir: configs/models/
+  model_output_dir: output/trained_models/
   parameters:
     n_estimators: 100
     max_depth: None
@@ -59,9 +66,6 @@ model:
     bootstrap: true
     random_state: 42
     n_jobs: -1
-  
-  model_dir: src/models/architectures/
-  model_output_dir: output/trained_models/
 
 
 metrics:

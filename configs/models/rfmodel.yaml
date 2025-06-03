@@ -1,5 +1,7 @@
 model:
   type: "RandomForestRegressor"
+  model_dir: src/models/architectures/
+  model_config_dir: configs/models/
   parameters:
     n_estimators: 100
     max_depth: null
