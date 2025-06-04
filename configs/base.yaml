@@ -2,6 +2,7 @@ data:
   yield_path: data/exp_data.csv
   features_dir: data/features/
   model_input_dir: data/model_input/
+  exp_optimum_csv_path: data/metrics/exp_optimum_regions.csv
   
 
 featurisation:
@@ -46,10 +47,21 @@ preprocessing:
 training:
   columns_to_remove: null
   target_variables: null
-  test_size: 0.2
-  cv_folds: 5
   random_state: 42
-  scoring_strategy: null
+
+
+validation:
+  id_col: substrate_id
+  val_method: null
+  indep_vars: null
+  dep_vars: null
+  constant_vars: null
+  standard: true
+  custom: true
+  test_size: null
+  cv_folds: 5
+  shuffle: false
+  random_state: null
 
 
 model:
@@ -71,13 +83,14 @@ model:
 metrics:
   threshold: 0.9
   iter_step: 0.1
-  output_path: null
+  output_dir: null
+  log_path: null
+  save: false
 
 
 logging:
   save_logs: true
   log_level: INFO
-  log_dir: logs/
 
 
 output:
@@ -85,3 +98,4 @@ output:
   metrics_path: null
   feature_importance_path: null
   predictions_path: null
+  log_path: null

@@ -1,223 +1,107 @@
 import os
-import sys
-import itertools
-import numpy as np
 import pandas as pd
-from glob import glob
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from src.utils.config import load_config
-from src.utils.model_utils import load_model_class, xy_split, select_model_and_data
-from src.guis.data_model_selector import select_data_models_tkinter
-from src.models.train_model import xy_split
-from src.metrics.curve_analysis import interpolate_data, find_region, find_optimum
-from src.metrics.custom_scoring import run_custom_metrics
-
-
-
-# Split data into training and testing sets using standard strategy - Split by unique ID (eg Substrate) only
-def train_test_split_id(df, id_col, test_size = 0.2, random_state = 42):
-
-    unique_ids = df[id_col].unique()
-
-    np.random.seed(random_state)
-    
-    np.random.shuffle(unique_ids)
-    split_index = int(len(unique_ids) * (1 - test_size))
-
-    train_ids = unique_ids[:split_index]
-    test_ids = unique_ids[split_index:]
-
-    train_df = df[df[id_col].isin(train_ids)]
-    test_df = df[df[id_col].isin(test_ids)]
-
-    return train_df, test_df
-
-
-# Split data into training and testing sets using Leave-One-Out (LOO) strategy - Split by unique ID (eg Substrate) only
-def loo_split(id, df, id_col):
-
-    train_df = df[df[id_col] != id]
-    test_df = df[df[id_col] == id]
-
-    return train_df, test_df
-
-
-
-
-
-
-def tts_validation_stf(model, 
-                   df, 
-                   id, 
-                   target_columns, 
-                   test_size = 0.2, 
-                   cv_folds = 5, 
-                   random_state = 42
-                   ):
-    
-    maes = []
-    mses = []
-    r2scores = []
-
-    for _ in range(cv_folds):
-        
-        # Split the data into training and testing sets
-        train_df, test_df = train_test_split_id(df, id, target_columns, test_size, random_state)
-        X_train, y_train = xy_split(train_df, id, target_columns)
-        X_test, y_test = xy_split(test_df, id, target_columns)
-
-        # Train the model
-        model.train(X_train, y_train)
-        
-        # Calculate standard metrics
-        y_pred = model.predict(X_test)
-        maes.append(mean_absolute_error(y_test, y_pred))
-        mses.append(mean_squared_error(y_test, y_pred))
-        r2scores.append(r2_score(y_test, y_pred))
-    
-    # Calculate the average of the metrics
-    avg_mae = np.mean(maes)
-    avg_mse = np.mean(mses)
-    avg_r2 = np.mean(r2scores)
-
-    print(f"Average MAE: {avg_mae}, Average MSE: {avg_mse}, Average R2: {avg_r2} over {cv_folds} folds")
-    
-    return {'mae': avg_mae, 'mse': avg_mse, 'r2': avg_r2}
-
-
-
-def tts_validation_custom(model, 
-                   df, 
-                   id_var,
-                   contant_vars,
-                   dep_var,
-                   target_column, 
-                   cv_folds = 5,
-                   iter_steps = 0.1,
-                   threshold = 0.9
-                   ):
-    
-    # Load the experimental optimum region CSV file
-    config_files = ["configs/base.yaml"]
-    cfg = load_config(config_files)
-    exp_optimum_csv_path = cfg['data']['exp_optimum_csv_path']
-    if not os.path.exists(exp_optimum_csv_path):
-        raise FileNotFoundError(f"Experimental optimum region CSV file not found at {exp_optimum_csv_path}. Generate using get_optimums.py first.")
-    df_exp_optimum = pd.read_csv(exp_optimum_csv_path)
-
-
-
-    # Initialize lists to store metrics
-    accuracies = []
-    precisions = []
-    overlaps = []
-    recalls = []
-    midpoint_in_true_regions = []
-    max_in_true_regions = []
-
-
-    # Perform cross-validation
-    for _ in range(cv_folds):
-
-        unique_ids = df[id_var].drop_duplicates().values
-        
-        for id in unique_ids:
-            
-            df_train, df_test = loo_split(id, df, id_var)
-
-            X_train, y_train = xy_split(df_train, id_var, target_column)
-
-            # Train the model
-            model.train(X_train, y_train)
-
-            constant_var_values = {var: list(df_exp_optimum[var].unique()) for var in contant_vars}
-            keys = list(constant_var_values.keys())
-            values = list(constant_var_values.values())
-            unique_combinations = [dict(zip(keys, combo)) for combo in itertools.product(*values)]
-
-            
-            for combination in unique_combinations:
-                
-                
-                df_test_subset = df_test.copy()
-                
-                for key, value in combination.items(): # Wittle down the df_test_subset to only the rows that match the current combination of constant variables
-                    if key not in df_test_subset.columns:
-                        
-                        ohe_col = f"{key}_{value}" # Assume the column was one-hot encoded
-                        df_test_subset = df_test_subset[df_test_subset[ohe_col] == 1]
-                    
-                    else:
-                        
-                        df_test_subset = df_test_subset[df_test_subset[key] == value]
-
-            
-
-                X_pred = df_test_subset[dep_var].values
-                X_train_subset, _ = xy_split(df_test_subset, id_var, target_column)
-                y_pred = model.predict(X_train_subset)
-
-                X_interpolated_pred, y_interpolated_pred = interpolate_data(X_pred, y_pred, inter_step=iter_steps)
-                opt_Xmin_pred, opt_Xmax_pred = find_region(X_interpolated_pred, y_interpolated_pred, threshold=threshold)
-                opt_X_pred, opt_y_pred = find_optimum(X_pred, y_pred)
-
-                accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region = run_custom_metrics(X
-
-
-
-
-
-                    
-
-
-
-            # Calculate custom metrics for each sample in the test set
-                
-                # Get experimental optium region information
-                opt_Xmin, optXmax = df_exp_optimum.loc[
-                    (df_exp_optimum[id_var] == pd.Series(combination)).all(axis=1),
-                    ['opt_Xmin', 'opt_Xmax']
-                ].values[0]
-                
-                df_train, df_test = loo_split(combination[0], df, id_var)
-                
-                mask = np.logical_and.reduce([df[k] == v for k, v in condition.items()])
-                df_test_subset = df[mask]
-
-                if df_test_subset.empty:
-                    continue
-
-       
-
-
-
-
-
-
+from src.utils.model_utils import get_validation_dfs, select_model_and_data 
+from src.metrics.split_metrics import evaluate_split_standard, evaluate_split_custom
 
 
 def main():
 
-    model, df, model_name, training_dataset, cfg = select_model_and_data()
-   
-    id_col = cfg['training']['columns_to_remove']
-    target_columns = cfg['training']['target_variables']
 
+    # Select model and data, then load and initialise
+    model, df, model_name, dset_name  = select_model_and_data()
+
+
+    # Load configuration files
+    config_files = ["configs/base.yaml", "configs/models/validate_model.yaml"]
+    cfg = load_config(config_files)
+
+    save_metric = cfg['metrics']['save']
+    update_log = cfg['metrics']['update_log']
+    metrics_dir = cfg['output']['metrics_dir']
+    val_method = cfg['validation']['val_method']
     
 
-    # Seperate the model into features and target variables and train...
-    X, y = xy_split(df, remove_columns, target_columns)
-    model.train(X, y)
+    # Generate splitter base on val_method in config file
+    if val_method == 'leave_one_out':
+        from sklearn.model_selection import LeaveOneOut
+        splitter = LeaveOneOut()
+        print("Using Leave-One-Out cross-validation for validation (change in config file validate_model.yaml).")
+    elif val_method == 'k_fold':
+        from sklearn.model_selection import KFold
+        shuffle = cfg['validation'].get('shuffle', True)
+        random_state = cfg['validation'].get('random_state', 42)
+        splitter = KFold(n_splits=cfg['validation']['k_folds'], shuffle=shuffle, random_state=random_state)
+        print(f"Using K-Fold cross-validation with {cfg['validation']['k_folds']} folds for validation (change in config file validate_model.yaml).")
+    else:
+        raise ValueError(f"Validation method {val_method} not supported. Use 'leave_one_out' or 'k_fold'.")
 
-    # Save the model for later use
-    model_save_path = cfg['output']['output_model_dir'] + f"{model_name.lower()}_{training_dataset}.pkl"
-    print(model_save_path)
-    model.save(model_save_path)
+    # Generate train/test data splits to itterate through
+    train_dfs, test_dfs = get_validation_dfs(df, cfg['validation']['id_col'], splitter)
 
-    print(f"Model {model_name} trained and saved to {model_save_path}")
+    if cfg['validation']['custom']:
+        opt_path = cfg['data']['exp_optimum_csv_path']
+        df_exp_optimum = pd.read_csv(opt_path)
+        print(f"Using custom metrics for validation with experimental optimum regions from {opt_path}.")
+
+    # itterate through train/test splits and calculate metrics for each experiment. Append dataframes to a list...
+    split_metrics_dfs = []
+    for i, (df_train, df_test) in enumerate(zip(train_dfs, test_dfs)):
+        
+        split_metrics = evaluate_split_custom(
+            model,
+            cfg['validation']['id_col'],
+            cfg['validation']['dep_vars'],
+            cfg['validation']['indep_vars'],
+            cfg['validation']['constant_vars'],
+            df_train,
+            df_test,
+            df_exp_optimum if cfg['validation']['custom'] else None,
+            iter_step=cfg['metrics']['iter_step'],
+            threshold=cfg['metrics']['threshold']
+        )
+        # Add info about the split
+        split_metrics['fold'] = i + 1
+        split_metrics_dfs.append(split_metrics)
+    
+    # Combine the info from each test/train split into a single DataFrame
+    metric_df = pd.concat(split_metrics_dfs, ignore_index=True)
+    
 
 
 
+    model_metrics = {
+    'mean_mse': metric_df['mse'].mean() if 'mse' in metric_df.columns else None,
+    'mean_mae': metric_df['mae'].mean() if 'mae' in metric_df.columns else None,
+    'mean_r2': metric_df['r2'].mean() if 'r2' in metric_df.columns else None,
+    'mean_accuracy': metric_df['accuracy'].mean() if 'accuracy' in metric_df.columns else None,
+    'mean_precision': metric_df['precision'].mean() if 'precision' in metric_df.columns else None,
+    'mean_overlap': metric_df['overlap'].mean() if 'overlap' in metric_df.columns else None,
+    'midpoint_hit_rate': metric_df['midpoint_in_true_region'].sum() / metric_df['midpoint_in_true_region'].count() if 'midpoint_in_true_region' in metric_df.columns else None,
+    'max_hit_rate': metric_df['max_in_true_region'].sum() / metric_df['max_in_true_region'].count() if 'max_in_true_region' in metric_df.columns else None,
+    }
+    print(f"Metrics for {model_name} trained with {dset_name} and {val_method} validation...")
+    print(f"{model_metrics}")
+
+    timestamp = pd.Timestamp.now().strftime('%d-%m-%Y_%H:%M')
+    
+    # Save the metrics (granular info) DataFrame to a CSV file if configured
+    if save_metric:
+        metric_df_filname = f"{model_name}_{dset_name}_{val_method}_{timestamp}_metrics.csv"
+        metric_df_path = os.path.join(metrics_dir, metric_df_filname)
+        metric_df.to_csv(metric_df_path, index=False)
+
+    # Update the log CSV file with the model metrics if configured. Comparison between using different models and datasets
+    if update_log:
+        from src.utils.log_utils import update_log_csv
+        log_path = cfg['output']['val_log_path']
+        new_entry = {'model': model_name,
+                       'datset': dset_name,
+                       'val_method': val_method,
+                       'timestamp': timestamp,}
+        new_entry.update(model_metrics)
+        update_log_csv(log_path, new_entry)
 
 
-
+if __name__ == "__main__":
+    main()

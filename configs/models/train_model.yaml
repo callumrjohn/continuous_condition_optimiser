@@ -5,7 +5,7 @@ training:
   columns_to_remove:
     - substrate_id
   target_variables: 
-    yield
+    - yield
 
 model:
   model_dir: src/models/architectures/

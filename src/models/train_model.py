@@ -9,7 +9,11 @@ from src.guis.data_model_selector import select_data_models_tkinter
 def main():
     
     # Generate model, df of training data plus model name, training dataset name and relevant config
-    model, df, model_name, training_dataset, cfg = select_model_and_data()
+    model, df, model_name, dset_name = select_model_and_data()
+
+    # Load the configuration file
+    config_files = ["configs/base.yaml", "configs/models/train_model.yaml"]
+    cfg = load_config(config_files)
 
     remove_columns = cfg['training']['columns_to_remove']
     target_columns = cfg['training']['target_variables']
@@ -19,7 +23,7 @@ def main():
     model.train(X, y)
 
     # Save the model for later use
-    model_save_path = cfg['output']['output_model_dir'] + f"{model_name.lower()}_{training_dataset}.pkl"
+    model_save_path = cfg['output']['output_model_dir'] + f"{model_name.lower()}_{dset_name}.pkl"
     print(model_save_path)
     model.save(model_save_path)
 

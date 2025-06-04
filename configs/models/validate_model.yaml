@@ -5,18 +5,41 @@ training:
   columns_to_remove:
     - substrate_id
   target_variables: 
-    yield
+    - yield
   
-  test_size: 0.2
+validation:
+  id_col: substrate_id
+  val_method: leave_one_out # Options: leave_one_out, k_fold
+  indep_vars: tfa_equivalents
+  dep_vars: yield
+  constant_vars: 
+    - substrate_id
+    - reagent
+  standard: true
+  custom: true
+
+
+  # Parameters for k_fold validation
   cv_folds: 5
+  shuffle: true
   random_state: 42
-  scoring_strategy: null
 
-
+metrics:
+  threshold: 0.9
+  iter_step: 0.1
+  save: true
+  update_log: true 
+  
 model:
   model_dir: src/models/architectures/
 
+logging:
+  save_logs: true
+  log_level: INFO
+
 output:
+  metrics_dir: outputs/metrics/validation_results
   output_model_dir: outputs/trained_models/
+  val_log_path: outputs/metrics/validation_log.csv
 
 

@@ -38,18 +38,3 @@ def is_midpoint_in_true_region(Xmin, Xmax, X_predmin, X_predmax):
 
 def is_max_in_true_region(Xmin, Xmax, X_predopt):
     return Xmin <= X_predopt <= Xmax
-
-
-# RUN THEM ALL TOGETHER
-def run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt):
-    """
-    Calculate custom metrics for the predicted high yielding region.
-    """
-    accuracy = region_accuracy(Xmin, Xmax, X_predmax, X_predmin)
-    precision = region_precision(Xmin, Xmax, X_predmax, X_predmin)
-    overlap = region_overlap(Xmin, Xmax, X_predmin, X_predmax)
-    recall = region_recall(Xmin, Xmax, X_predmin, X_predmax)
-    midpoint_in_true_region = is_midpoint_in_true_region(Xmin, Xmax, X_predmin, X_predmax)
-    max_in_true_region = is_max_in_true_region(Xmin, Xmax, X_predopt)
-
-    return accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region
