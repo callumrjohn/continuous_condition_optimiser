@@ -75,28 +75,30 @@ def test_one_hot_encode():
 
     # Create a mock DataFrame
     df = pd.DataFrame({
-        'id': ['substrate1', 'substrate2', 'substrate3'],
-        'category': ['cat1', 'cat2', 'cat1']
+        'id': ['substrate1', 'substrate2', 'substrate3', 'substrate3'],
+        'category': ['cat1', 'cat2', 'cat1', 'cat3'],
+        'variable': [1, 2, 3, 4]
     })
 
     # One-hot encode the 'category' column
     encoded_df = one_hot_encode(df, columns=['category'], drop_first = False, sparse_encoded = False)
 
     # Check the shape of the encoded DataFrame
-    assert encoded_df.shape == (3, 3)
+    assert encoded_df.shape == (4, 5)
 
     # Check the columns
-    assert list(encoded_df.columns) == ['id', 'category_cat1', 'category_cat2']
+    assert list(encoded_df.columns) == ['id', 'variable', 'category_cat1', 'category_cat2', 'category_cat3']
 
     # Check the values
     expected_values = [
-        ('substrate1', 1, 0),
-        ('substrate2', 0, 1),
-        ('substrate3', 1, 0)
+        ('substrate1', 1, 1, 0, 0),
+        ('substrate2', 2, 0, 1, 0),
+        ('substrate3', 3, 1, 0, 0),
+        ('substrate3', 4, 0, 0, 1)
     ]
     
-    for i, (id_val, cat1_val, cat2_val) in enumerate(expected_values):
-        assert encoded_df.iloc[i].tolist() == [id_val, cat1_val, cat2_val]
+    for i, (id_val, cat1_val, cat2_val, cat3_val, var_value) in enumerate(expected_values):
+        assert encoded_df.iloc[i].tolist() == [id_val, cat1_val, cat2_val, cat3_val, var_value]
 
 
 
@@ -108,6 +110,9 @@ def test_merge_data_first():
     # Create mock DataFrames
     data = pd.DataFrame({
         'id': ['substrate1', 'substrate2', 'substrate3'],
+        'reagent_one': [1, 0, 0],
+        'reagent_two': [0, 1, 0],
+        'reagent_three': [0, 0, 1],
         'yield': [10, 20, 30]
     })
 
@@ -131,21 +136,21 @@ def test_merge_data_first():
     merged_df = merge_dfs(data, fingerprints, id_col='id', how='inner', desc_labels=None, duplicate_selection='first')
 
     # Check the shape of the merged DataFrame
-    assert merged_df.shape == (3, 7)
+    assert merged_df.shape == (3, 10)
 
     # Check the columns
-    assert list(merged_df.columns) == ['id', 'yield', 'fp1_0', 'fp2_0', 'fp3_0', 'fp4_1', 'fp5_1']
+    assert list(merged_df.columns) == ['id', 'reagent_one', 'reagent_two', 'reagent_three', 'yield', 'fp1_0', 'fp2_0', 'fp3_0', 'fp4_1', 'fp5_1']
 
     # Check the values
     expected_values = [
-        ('substrate1', 10, 0.1, 0.4, 'no', 0.7, 1.0),
-        ('substrate2', 20, 0.2, 0.5, 'yes', 0.8, 1.1),
-        ('substrate3', 30, 0.3, 0.6, 'yes', 0.9, 1.2)
+        ('substrate1', 1, 0, 0, 10, 0.1, 0.4, 'no', 0.7, 1.0),
+        ('substrate2', 0, 1, 0, 20, 0.2, 0.5, 'yes', 0.8, 1.1),
+        ('substrate3', 0, 0, 1, 30, 0.3, 0.6, 'yes', 0.9, 1.2)
     ]
 
 
-    for i, (id_val, y, fp1_val, fp2_val, fp3_val, fp4_val, fp5_val) in enumerate(expected_values):
-        assert merged_df.iloc[i].tolist() == [id_val, y, fp1_val, fp2_val, fp3_val, fp4_val, fp5_val]
+    for i, (id_val, r_1, r_2, r_3, y, fp1_val, fp2_val, fp3_val, fp4_val, fp5_val) in enumerate(expected_values):
+        assert merged_df.iloc[i].tolist() == [id_val, r_1, r_2, r_3, y, fp1_val, fp2_val, fp3_val, fp4_val, fp5_val]
 
 
 

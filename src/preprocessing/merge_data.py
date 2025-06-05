@@ -22,56 +22,42 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
         # Rename columns to avoid conflicts
         renamed_df = df.rename(columns=lambda x: f"{x}_{desc_labels[i]}" if x != id_col else id_col)
         renamed_fingerprints.append(renamed_df)
-    to_merge = [data] + renamed_fingerprints
 
-    merged = reduce(lambda left, right: pd.merge(left, right, on=id_col, how=how), to_merge)
+    if len(renamed_fingerprints) == 0:
+        raise ValueError("No fingerprints provided for merging.")
 
+    elif len(renamed_fingerprints) == 1:
+        merged_df = pd.merge(data, renamed_fingerprints[0], on=id_col, how=how)
+        return merged_df
+    
+
+    merged_desc = reduce(lambda left, right: pd.merge(left, right, on=id_col, how=how), renamed_fingerprints)
     # Handle duplicate sections based on the specified method
     
     # Find base column names (without suffix)
     base_names = {}
-    for col in merged.columns:
+    for col in merged_desc.columns:
         if col == id_col:
             continue
-        if '_' in col:
-            base = col.rsplit('_', 1)[0]
-            base_names.setdefault(base, []).append(col)
         else:
-            base_names.setdefault(col, []).append(col)
+            base = col.rsplit('_', 1)[-2]   # Get the base name before the last underscore added through labelling
+            base_names.setdefault(base, []).append(col)
 
     cols_to_keep = [id_col]
-    new_cols = {}
 
     for base, cols in base_names.items():
-        if len(cols) == 1:
+        if len(cols) == 1 or duplicate_selection == 'first':
             cols_to_keep.append(cols[0])
-        else:
-            if duplicate_selection == 'first':
-                selected = min(cols, key=lambda c: merged.columns.get_loc(c))
-                cols_to_keep.append(selected)
-            elif duplicate_selection == 'last':
-                selected = max(cols, key=lambda c: merged.columns.get_loc(c))
-                cols_to_keep.append(selected)
-            elif duplicate_selection == 'mean':
-                return print("'mean' selection is not implemented yet. Please choose 'first' or 'last'.")
-                # Try to convert to numeric, ignore errors
-                try:
-                    vals = merged[cols].apply(pd.to_numeric, errors='coerce')
-                    new_col = vals.mean(axis=1)
-                    new_cols[base] = new_col
-                    cols_to_keep.append(base)
-                except Exception:
-                    # If conversion fails, just keep the first
-                    selected = min(cols, key=lambda c: merged.columns.get_loc(c))
-                    cols_to_keep.append(selected)
 
-        merged_df = merged.copy()
-        for base, col_data in new_cols.items():
-            merged_df[base] = col_data
+        elif duplicate_selection == 'last':
+            cols_to_keep.append(cols[-1])
+        
+        elif duplicate_selection == 'mean':
+            return print("'mean' selection is not implemented yet. Please choose 'first' or 'last'.")
 
-        merged_df = merged_df[cols_to_keep]
-
-
+    print(cols_to_keep)
+    merged_desc = merged_desc[cols_to_keep]
+    merged_df = pd.merge(data, merged_desc, on=id_col, how=how)
 
     return merged_df
 
