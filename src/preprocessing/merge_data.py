@@ -55,7 +55,7 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
         elif duplicate_selection == 'mean':
             return print("'mean' selection is not implemented yet. Please choose 'first' or 'last'.")
 
-    print(cols_to_keep)
+    #print(cols_to_keep)
     merged_desc = merged_desc[cols_to_keep]
     merged_df = pd.merge(data, merged_desc, on=id_col, how=how)
 
