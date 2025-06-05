@@ -61,11 +61,14 @@ def main():
             threshold=cfg['metrics']['threshold']
         )
         # Add info about the split
+        #print(type(split_metrics))
         split_metrics['fold'] = i + 1
         split_metrics_dfs.append(split_metrics)
+        #print(len(split_metrics.keys()))
+        #print(len(split_metrics_dfs))
     
     # Combine the info from each test/train split into a single DataFrame
-    metric_df = pd.concat(split_metrics_dfs, ignore_index=True)
+    metric_df = pd.concat(split_metrics_dfs, ignore_index=True, axis = 0)
     
 
 
@@ -83,12 +86,18 @@ def main():
     print(f"Metrics for {model_name} trained with {dset_name} and {val_method} validation...")
     print(f"{model_metrics}")
 
-    timestamp = pd.Timestamp.now().strftime('%d-%m-%Y_%H:%M')
+    timestamp = pd.Timestamp.now().strftime('%d-%m-%Y_%H.%M')
     
     # Save the metrics (granular info) DataFrame to a CSV file if configured
     if save_metric:
-        metric_df_filname = f"{model_name}_{dset_name}_{val_method}_{timestamp}_metrics.csv"
-        metric_df_path = os.path.join(metrics_dir, metric_df_filname)
+        if val_method == 'leave_one_out':
+            metric_df_filename = f"{model_name}_{dset_name}_loo_{timestamp}.csv"
+        elif val_method == 'k_fold':
+            metric_df_filename = f"{model_name}_{dset_name}_kfold{cfg['validation']['k_folds']}_{timestamp}.csv"
+        
+        metric_df_path = os.path.join(metrics_dir, metric_df_filename)
+        #print(metric_df_path)
+        #print(metric_df.head())
         metric_df.to_csv(metric_df_path, index=False)
 
     # Update the log CSV file with the model metrics if configured. Comparison between using different models and datasets

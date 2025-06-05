@@ -32,8 +32,9 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
     
 
     merged_desc = reduce(lambda left, right: pd.merge(left, right, on=id_col, how=how), renamed_fingerprints)
-    # Handle duplicate sections based on the specified method
     
+    # Handle duplicate descriptors based on the specified method when combining fingerprints
+
     # Find base column names (without suffix)
     base_names = {}
     for col in merged_desc.columns:
@@ -42,7 +43,7 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
         else:
             base = col.rsplit('_', 1)[-2]   # Get the base name before the last underscore added through labelling
             base_names.setdefault(base, []).append(col)
-
+    
     cols_to_keep = [id_col]
 
     for base, cols in base_names.items():

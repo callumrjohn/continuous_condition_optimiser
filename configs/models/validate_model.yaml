@@ -38,7 +38,7 @@ logging:
   log_level: INFO
 
 output:
-  metrics_dir: outputs/metrics/validation_results
+  metrics_dir: outputs/metrics/validation_results/
   output_model_dir: outputs/trained_models/
   val_log_path: outputs/metrics/validation_log.csv
 

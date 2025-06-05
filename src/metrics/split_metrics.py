@@ -8,12 +8,12 @@ from src.metrics.curve_analysis import interpolate_data, find_region, find_optim
 from src.metrics.custom_metrics import region_accuracy, region_precision, region_overlap, region_recall, is_midpoint_in_true_region, is_max_in_true_region
 
 # RUN THEM ALL TOGETHER
-def run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt):
+def run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=0, scaler_max=25):
     """
     Calculate custom metrics for the predicted high yielding region.
     """
-    accuracy = region_accuracy(Xmin, Xmax, X_predmax, X_predmin)
-    precision = region_precision(Xmin, Xmax, X_predmax, X_predmin)
+    accuracy = region_accuracy(Xmin, Xmax, X_predmax, X_predmin, scaler_min=scaler_min, scaler_max=scaler_max)
+    precision = region_precision(Xmin, Xmax, X_predmax, X_predmin, scaler_min=scaler_min, scaler_max=scaler_max)
     overlap = region_overlap(Xmin, Xmax, X_predmin, X_predmax)
     recall = region_recall(Xmin, Xmax, X_predmin, X_predmax)
     midpoint_in_true_region = is_midpoint_in_true_region(Xmin, Xmax, X_predmin, X_predmax)
@@ -79,14 +79,16 @@ def evaluate_split_custom(model, # Model to evaluate (class)
 
     print(constant_vars)
     # Work out the unique combinations of constant variables from df_exp_optimum (non encoded)
-    constant_var_values = {var: list(df_exp_optimum[var].unique()) for var in constant_vars}
+    split_test_ids = df_test[id_var].unique()
+    df_exp_optimum_test = df_exp_optimum[df_exp_optimum[id_var].isin(split_test_ids)]
+    constant_var_values = {var: list(df_exp_optimum_test[var].unique()) for var in constant_vars}
     keys = list(constant_var_values.keys())
     values = list(constant_var_values.values())
 
     unique_combinations = [dict(zip(keys, combo)) for combo in itertools.product(*values)]
 
     for combination in unique_combinations:
-        
+        print(f"Evaluating combination: {combination}")
         # Get the optimum region for the current combination of constant variables from df_exp_optimum
         combination_exp_row = df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)]
         if combination_exp_row.empty:
@@ -114,19 +116,22 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         X_pred = df_test_subset[indep_var].values
         X_test_subset, y_test_subset = xy_split(df_test_subset, id_var, dep_var)
         
+        #print(X_test_subset[:, 0])
+        scaler_min = X_test_subset[:, 0].min()
+        scaler_max = X_test_subset[:, 0].max()
         X_test_subset = scaler.transform(X_test_subset)
         y_pred = model.predict(X_test_subset)
 
-        mae = mean_absolute_error(y_pred, y_test_subset)
-        mse = mean_squared_error(y_pred, y_test_subset)
-        r2score = r2_score(y_pred, y_test_subset)
+        mae = mean_absolute_error(y_test_subset, y_pred)
+        mse = mean_squared_error(y_test_subset, y_pred)
+        r2score = r2_score(y_test_subset, y_pred)
 
         X_interpolated_pred, y_interpolated_pred = interpolate_data(X_pred, y_pred, inter_step=iter_step)
         X_predmin, X_predmax = find_region(X_interpolated_pred, y_interpolated_pred, threshold=threshold)
         X_predopt, y_predopt = find_optimum(X_pred, y_pred)
 
         # Run custom metrics and append results
-        accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region = run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt)
+        accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region = run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=scaler_min, scaler_max=scaler_max)
 
         combination_metrics = {**combination,
                                  'mae': mae,
