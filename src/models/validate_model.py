@@ -44,7 +44,7 @@ def main():
         df_exp_optimum = pd.read_csv(opt_path)
         print(f"Using custom metrics for validation with experimental optimum regions from {opt_path}.")
 
-    # itterate through train/test splits and calculate metrics for each experiment. Append dataframes to a list...
+    # Itterate through train/test splits and calculate metrics for each experiment. Append dataframes to a list...
     split_metrics_dfs = []
     for i, (df_train, df_test) in enumerate(zip(train_dfs, test_dfs)):
         
@@ -76,7 +76,7 @@ def main():
     model_metrics = {
     'mean_mse': metric_df['mse'].mean() if 'mse' in metric_df.columns else None,
     'mean_mae': metric_df['mae'].mean() if 'mae' in metric_df.columns else None,
-    'mean_r2': metric_df['r2'].mean() if 'r2' in metric_df.columns else None,
+    'mean_r2': metric_df['r2score'].mean() if 'r2score' in metric_df.columns else None,
     'mean_accuracy': metric_df['accuracy'].mean() if 'accuracy' in metric_df.columns else None,
     'mean_precision': metric_df['precision'].mean() if 'precision' in metric_df.columns else None,
     'mean_overlap': metric_df['overlap'].mean() if 'overlap' in metric_df.columns else None,
