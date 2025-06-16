@@ -13,7 +13,7 @@ def has_thiol(mol):
 
 def has_thioether(mol):
     """Check if a molecule contains a thioether group (R-S-R')."""
-    thioether_smarts = Chem.MolFromSmarts('[SX2;$([S][C;!$(C=O)])][C;!$(C=O)]') # does NOT include thioethers with carbonyls
+    thioether_smarts = Chem.MolFromSmarts('[S&D2;!a;$(S-[C;!$(C=O)])][C;!$(C=O)]') # does NOT include thioethers with carbonyls or aromatic sulfures
     return mol.HasSubstructMatch(thioether_smarts)
 
 def has_thioester(mol):
@@ -59,3 +59,26 @@ def has_glycoside(mol):
     return mol.HasSubstructMatch(glycoside_smarts)
 
 
+
+def gen_custom_descriptors(smiles):
+    """Generate custom features based on specific moieties in the SMILES strings."""
+
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES string: {smiles}")
+
+        
+    custom_features = {}
+
+    custom_features['has_thiol'] = has_thiol(mol)
+    custom_features['has_thioether'] = has_thioether(mol)
+    custom_features['has_thioester'] = has_thioester(mol)
+    custom_features['has_thiocarboxylic_acid'] = has_thiocarboxylic_acid(mol)
+    custom_features['has_sulfoxide'] = has_sulfoxide(mol)
+    custom_features['has_alkene'] = has_alkene(mol)
+    custom_features['has_alkyne'] = has_alkyne(mol)
+    custom_features['has_tertiary_alcohol'] = has_tertiary_alcohol(mol)
+    custom_features['has_glycosamine'] = has_glycosamine(mol)
+    custom_features['has_glycoside'] = has_glycoside(mol)
+
+    return custom_features
