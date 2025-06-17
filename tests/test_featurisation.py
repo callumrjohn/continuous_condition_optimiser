@@ -67,7 +67,8 @@ def test_gen_custom_fps():
     from src.featurisation.custom_gen import gen_custom_descriptors
     # Mock data
     df = pd.DataFrame({
-        "id": ['Caffeine', 
+        "id": ['Caffeine',
+               'pyrimidin-2(1H)-one', 
                'Lamivudine',
                'Tetracycline',
                'Propane',
@@ -81,6 +82,7 @@ def test_gen_custom_fps():
                '(2S,3S)-2-methoxytetrahydro-2H-pyran-3-ol',
                ],
         "smiles": ['O=C(N(C1=O)C)N(C2=C1N(C=N2)C)C',
+                   'O=C1N=CC=CN1',
                    'NC1=NC(N([C@@H]2CS[C@@H](O2)CO)C=C1)=O',
                    'OC1=CC=CC2=C1C(C3=C(O)[C@@](C(C(C(N)=O)=C(O)[C@H]4N(C)C)=O)(O)C4CC3[C@@]2(O)C)=O',
                    'CCC',
@@ -105,12 +107,13 @@ def test_gen_custom_fps():
         descriptors = pd.concat([descriptors, new_row], ignore_index=True)
     
     # Check the shape of the descriptors DataFrame
-    assert descriptors.shape == (12, 11)  # 10 features + 1 smiles column
+    assert descriptors.shape == (13, 11)  # 10 features + 1 smiles column
 
     descriptor_values = descriptors.iloc[:, 1:].values
 
     expected_values = [[False, False, False, False, False, False, False, False, False, False],
-                       [False, True, False, False, False, True, False, False, True, False],
+                       [False, False, False, False, False, False, False, False, False, False],
+                       [False, True, False, False, False, False, False, False, True, False],
                        [False, False, False, False, False, True, False, True, False, False],
                        [False, False, False, False, False, False, False, False, False, False],
                        [False, False, False, False, False, False, False, False, False, False],
@@ -118,8 +121,8 @@ def test_gen_custom_fps():
                        [False, False, False, False, False, False, False, False, False, False],
                        [False, False, False, True, False, False, False, False, False, False],
                        [False, False, False, False, False, False, False, False, True, False],
-                       [False, False, True, False, False, False, False, True, False, False],
-                       [True, False, False, False, False, False, True, False, False, False],
+                       [False, False, True, False, False, False, True, False, False, False],
+                       [False, True, False, False, False, True, False, False, False, False],
                        [False, False, False, False, False, False, False, False, False, True],
     ]
 

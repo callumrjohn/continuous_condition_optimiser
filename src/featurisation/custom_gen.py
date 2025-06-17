@@ -8,12 +8,12 @@ from src.utils.config import load_config
 
 def has_thiol(mol):
     """Check if a molecule contains a thiol group (-SH)."""
-    thiol_smarts = Chem.MolFromSmarts('[SX2H]')
+    thiol_smarts = Chem.MolFromSmarts('[SX2H]([C;!$(C=O)])')  # Excludes thiols with carbonyls
     return mol.HasSubstructMatch(thiol_smarts)
 
 def has_thioether(mol):
     """Check if a molecule contains a thioether group (R-S-R')."""
-    thioether_smarts = Chem.MolFromSmarts('[S&D2;!a;$(S-[C;!$(C=O)])][C;!$(C=O)]') # does NOT include thioethers with carbonyls or aromatic sulfures
+    thioether_smarts = Chem.MolFromSmarts('[SX2]([C;!$(C=O)])[C;!$(C=O)]') # does NOT include thioethers with carbonyls or aromatic sulfures
     return mol.HasSubstructMatch(thioether_smarts)
 
 def has_thioester(mol):
@@ -45,17 +45,17 @@ def has_alkyne(mol):
 
 def has_tertiary_alcohol(mol):
     """Check if a molecule contains a tertiary alcohol group."""
-    tertiary_alcohol_smarts = Chem.MolFromSmarts('[CX4](O)([CX4])([CX4])[CX4]')
+    tertiary_alcohol_smarts = Chem.MolFromSmarts('[CX4](O)([C,c])([C,c])[C,c]')
     return mol.HasSubstructMatch(tertiary_alcohol_smarts)
 
 def has_glycosamine(mol):
     """Check if a molecule contains a glycosamine group."""
-    glycosamine_smarts = Chem.MolFromSmarts('[C;!$(C=O)]([O;!$(C=O)])([N;!$(C=O)])')
+    glycosamine_smarts = Chem.MolFromSmarts('[C;!$(C=O)]([O])[N,n]')
     return mol.HasSubstructMatch(glycosamine_smarts)
 
 def has_glycoside(mol):
     """Check if a molecule contains a glycoside group."""
-    glycoside_smarts = Chem.MolFromSmarts('[C;!$(C=O)]([O;!$(C=O)])([O;!$(C=O)])')
+    glycoside_smarts = Chem.MolFromSmarts('[C;!$(C=O)]([O])[O,o]')
     return mol.HasSubstructMatch(glycoside_smarts)
 
 
