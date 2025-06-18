@@ -59,8 +59,9 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                    iter_step=0.1,
                    threshold=0.9,
                    ):
-    print(df_exp_optimum.columns)
+    #print(df_exp_optimum.columns)
     
+
     # Initialize list to store metrics for each combination
     test_combination_metrics = []
 
@@ -89,6 +90,11 @@ def evaluate_split_custom(model, # Model to evaluate (class)
 
     for combination in unique_combinations:
         print(f"Evaluating combination: {combination}")
+        
+        if df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)].empty:
+            print(f"No experimental optimum region found for this combination: {combination}. Skipping...")
+            continue
+
         # Get the optimum region for the current combination of constant variables from df_exp_optimum
         combination_exp_row = df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)]
         if combination_exp_row.empty:
