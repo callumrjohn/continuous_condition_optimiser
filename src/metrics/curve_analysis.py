@@ -28,9 +28,9 @@ def find_region(X, y, threshold = 0.9):
     y = [x if x >= 0 else 0 for x in y]  # Ensure no negative values
     max_y = np.max(y)
     cutoff_y = max_y * threshold
-    print("Cutoff y value for optimum region:", cutoff_y)
+    #print("Cutoff y value for optimum region:", cutoff_y)
     optimum_X_region = X[y >= cutoff_y]
-    print(len(optimum_X_region), "points in optimum region")
+    #print(len(optimum_X_region), "points in optimum region")
     opt_Xmin, opt_Xmax = np.min(optimum_X_region), np.max(optimum_X_region)
     return opt_Xmin, opt_Xmax
 

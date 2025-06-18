@@ -22,7 +22,7 @@ def test_interpolate_data():
     assert np.isclose(y_interpolated[-1], 30.0)
     
 
-def test_get_optimum():
+def test_get_optimums():
     import pandas as pd
     from src.metrics.curve_analysis import interpolate_data, find_region, find_optimum
 

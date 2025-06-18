@@ -13,4 +13,5 @@ preprocessing:
 metrics:
   threshold: 0.9
   iter_step: 0.1
+  success_cutoff: 10
   output_path: data/metrics/exp_optimum_regions.csv

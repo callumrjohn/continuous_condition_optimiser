@@ -74,6 +74,7 @@ model:
 metrics:
   threshold: 0.9
   iter_step: 0.1
+  success_cutoff: 10 # minimim value for optimum to be considered. Set to null to disable
   output_dir: null
   log_path: null
   save: false

@@ -15,6 +15,7 @@ def main():
     output_path = cfg['metrics']['output_path']
     threshold = cfg['metrics']['threshold']
     iter_steps = cfg['metrics']['iter_step']
+    success_cutoff = cfg['metrics']['success_cutoff']
 
     id_vars = cfg['preprocessing']['id_vars']
     melt = cfg['preprocessing']['melt']
@@ -46,6 +47,10 @@ def main():
         X = df_subset[var_name].values
         #print(X)
         y = df_subset[value_name].values
+
+        if success_cutoff > max(y):
+            print(f"Skipping {combination} due to {value_name} being less than {success_cutoff} for all experiments.")
+            continue
 
         # Generate the interpolated data and find the optimum region
         X_interpolated, y_interpolated = interpolate_data(X, y, inter_step=iter_steps)
