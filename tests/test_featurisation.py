@@ -63,7 +63,7 @@ def test_gen_rdkit_descriptors():
 
 #----------------- Test function for generating custom fingerprints ---------------
 
-def test_gen_custom_fps():
+def test_get_custom_descriptors():
     from src.featurisation.custom_gen import gen_custom_descriptors
     # Mock data
     df = pd.DataFrame({
@@ -132,3 +132,30 @@ def test_gen_custom_fps():
         print(f"Expected values: {expected}")
         assert np.array_equal(descriptor_values[i], expected)
         
+
+#----------------- Test function for generating custom fingerprints ----------------
+def test_gen_custom_descriptors():
+    from src.featurisation.custom_gen import gen_custom_descriptors
+    # Mock data
+    df = pd.DataFrame({
+        "id": ['Caffeine', 
+               'Lamivudine', 
+               'Invalid'
+               ],
+        "smiles": ["O=C(N(C1=O)C)N(C2=C1N(C=N2)C)C",
+                   "NC1=NC(N([C@@H]2CS[C@@H](O2)CO)C=C1)=O",
+                   "INVALID"
+                   ]
+    })
+    
+    custom_df, failed = gen_custom_descriptors(df, "smiles", "id")
+
+    assert custom_df.shape[1] > 1  # Should have more than just the ID column
+
+    assert 'has_sulfoxide' in custom_df.columns  # Check if a common descriptor is present
+    
+    assert failed == ['Invalid']
+    
+    assert custom_df.iloc[2, 1:].isnull().all()  # Invalid SMILES should have NaN for all descriptors
+
+    assert custom_df["id"].tolist() == ['Caffeine', 'Lamivudine', 'Invalid']  # IDs should match input

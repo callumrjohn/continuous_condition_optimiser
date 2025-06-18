@@ -1,0 +1,6 @@
+featurisation:
+  smiles_path: data/smiles.csv
+  smiles_column: smiles
+  id_column: substrate_id
+  method: custom
+  output_features_path: data/features/custom_descriptors.csv

@@ -60,12 +60,14 @@ def has_glycoside(mol):
 
 
 
-def gen_custom_descriptors(smiles):
+def get_custom_descriptors(smiles):
     """Generate custom features based on specific moieties in the SMILES strings."""
 
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError(f"Invalid SMILES string: {smiles}")
+        print(f"Invalid SMILES string: {smiles}")
+        return None
+    # Initialize a dictionary to hold custom features
 
         
     custom_features = {}
@@ -82,3 +84,53 @@ def gen_custom_descriptors(smiles):
     custom_features['has_glycoside'] = has_glycoside(mol)
 
     return custom_features
+
+
+
+def gen_custom_descriptors(df, smiles_col, id_col):
+    """Generate custom descriptors for a DataFrame of SMILES strings."""
+    
+    descriptors = []
+    failed = []
+
+    for _, row in df.iterrows():
+        
+        desc = get_custom_descriptors(row[smiles_col])
+        
+        if desc is None:
+            failed.append(row[id_col])
+            descriptors.append({})
+      
+        else:
+            descriptors.append(desc)
+
+    # Assemble DataFrame
+    desc_df = pd.DataFrame(descriptors)
+    columns = desc_df.columns.tolist()
+    desc_df[id_col] = df[id_col]
+
+    # Reorder columns
+    cols = [id_col] + columns
+    return desc_df[cols], failed
+
+
+def main():
+    config_files = ["configs/base.yaml", "configs/featurisation/custom.yaml"]
+    cfg = load_config(config_files)
+
+    input_path = cfg['featurisation']['smiles_path']
+    smiles_col = cfg['featurisation']['smiles_column']
+    id_col = cfg['featurisation']['id_column']
+    output_path = cfg['featurisation']['output_features_path']
+
+    df = pd.read_csv(input_path)
+    desc_df, failed = gen_custom_descriptors(df, smiles_col, id_col)
+
+    desc_df.to_csv(output_path, index=False)
+
+    print(f"Custom descriptors saved to {output_path}")
+    if failed:
+        print(f"Warning: failed to parse SMILES for IDs: {failed}")
+
+if __name__ == "__main__":
+    main()
