@@ -1,0 +1,10 @@
+model:
+  type: "RandomRegressor"
+  model_dir: src/models/architectures/
+  model_config_dir: configs/models/
+  parameters:
+    dummy_param: 42
+
+output:
+  output_model_dir: outputs/trained_models/
+  output_metrics_dir: outputs/model_metrics/
