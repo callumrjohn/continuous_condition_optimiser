@@ -1,4 +1,7 @@
 featurisation:
+  smiles_path: data/smiles.csv
+  smiles_column: smiles
+  id_column: substrate_id
   method: rdkit
   output_features_path: data/features/rdkit_descriptors.csv
 

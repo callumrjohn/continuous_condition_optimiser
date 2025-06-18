@@ -1,4 +1,7 @@
 featurisation:
+  smiles_path: data/smiles.csv
+  smiles_column: smiles
+  id_column: substrate_id
   method: mordred
   output_features_path: data/features/mordred_descriptors.csv
 
