@@ -60,6 +60,32 @@ def test_gen_rdkit_descriptors():
     assert rdk_df["id"].tolist() == ['Caffeine', 'Lamivudine', 'Invalid']  # IDs should match input
 
 
+#----------------- Test function for generating Mordred fingerprints --------------
+
+def test_gen_mordred_descriptors():
+    from src.featurisation.mordred_gen import gen_mordred_descriptors
+    # Mock data
+    df = pd.DataFrame({
+        "id": ['Caffeine', 
+               'Lamivudine', 
+               'Invalid'
+               ],
+        "smiles": ["O=C(N(C1=O)C)N(C2=C1N(C=N2)C)C",
+                   "NC1=NC(N([C@@H]2CS[C@@H](O2)CO)C=C1)=O",
+                   "INVALID"
+                   ]
+    })
+    
+    mord_df = gen_mordred_descriptors(df, "smiles", "id", ignore_3D = True, missingVal = np.nan)
+
+    assert mord_df.shape[1] == 1614  # ID column + 1613 Mordred descriptors
+
+    assert 'MW' in mord_df.columns  # Check if a common descriptor is present
+    
+    assert mord_df.iloc[2, 1:].isnull().all()  # Invalid SMILES should have NaN for all descriptors
+
+    assert mord_df["id"].tolist() == ['Caffeine', 'Lamivudine', 'Invalid']  # IDs should match input
+
 
 #----------------- Test function for generating custom fingerprints ---------------
 

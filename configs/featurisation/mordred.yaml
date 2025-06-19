@@ -6,7 +6,5 @@ featurisation:
   output_features_path: data/features/mordred_descriptors.csv
 
   parameters:
-    descriptors: null  # null = all descriptors
-    ignore_3d: true    # Only use 2D descriptors
-    timeout: 10        # Max time in seconds per molecule
-    n_jobs: -1
+    missingVal: np.NaN  # Value to use for missing data
+    ignore_3D: true    # Only use 2D descriptors
