@@ -2,7 +2,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 import numpy as np
 
 class RANDOMModel(BaseEstimator, RegressorMixin):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs): # Dummy kwargs to match the interface
         pass
 
     def fit(self, X, y):
