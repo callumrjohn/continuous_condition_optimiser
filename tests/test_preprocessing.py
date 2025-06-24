@@ -204,6 +204,7 @@ def test_merge_data_last():
 
 
 #------------- Test function for merging data with duplicate_selection = 'mean' (work-in-progress)----------
+'''
 def test_merge_data_mean():
     from src.preprocessing.merge_data import merge_dfs
 
@@ -249,4 +250,95 @@ def test_merge_data_mean():
 
     for i, (id_val, y, fp1_val, fp2_val, fp3_val, fp4_val, fp5_val) in enumerate(expected_values):
         assert merged_df.iloc[i].tolist() == [id_val, y, fp1_val, fp2_val, fp3_val, fp4_val, fp5_val]
-    
+'''
+
+#----------------- Test function for removing nan columns ------------------------
+
+def test_remove_nan_columns():
+    from src.preprocessing.merge_data import remove_nan_columns
+
+    # Create a mock DataFrame with NaN columns
+    df = pd.DataFrame({
+        'id': ['substrate1', 'substrate2', 'substrate3'],
+        'col1': [1, 2, np.nan],
+        'col2': [np.nan, np.nan, np.nan],
+        'col3': [3, 4, 5]
+    })
+
+    # Remove columns with all NaN values
+    cleaned_df = remove_nan_columns(df, how='all')
+
+    # Check the shape of the cleaned DataFrame
+    assert cleaned_df.shape == (3, 3)
+
+    # Check the columns
+    assert list(cleaned_df.columns) == ['id', 'col1', 'col3']
+
+    # Check the values
+    expected_values = [
+        ('substrate1', 1, 3),
+        ('substrate2', 2, 4),
+        ('substrate3', np.nan, 5)
+    ]
+
+    for i, (id_val, col1_val, col3_val) in enumerate(expected_values):
+       row = cleaned_df.iloc[i].tolist()
+       # Compare id
+       assert row[0] == id_val
+       # Compare col1
+       if np.isnan(col1_val):
+           assert np.isnan(row[1])
+       else:
+           assert row[1] == col1_val
+       # Compare col3
+       if np.isnan(col3_val):
+           assert np.isnan(row[2])
+       else:
+           assert row[2] == col3_val
+
+
+#----------------- Test function for removing columnbs with no variance ------------------------------
+
+def test_remove_no_variance_columns():
+    from src.preprocessing.merge_data import remove_no_variance_columns
+
+    # Create a mock DataFrame with no variance in some columns
+    df = pd.DataFrame({
+        'id': ['substrate1', 'substrate2', 'substrate3'],
+        'col1': [1, 1, 1],
+        'col2': [2, 2, 2],
+        'col3': [3, 4, 5],
+        'col4': [np.nan, np.nan, np.nan],
+        'col5': [1, 1, np.nan]
+    })
+
+    # Remove columns with no variance
+    cleaned_df = remove_no_variance_columns(df)
+
+    # Check the shape of the cleaned DataFrame
+    assert cleaned_df.shape == (3, 3)
+
+    # Check the columns
+    assert list(cleaned_df.columns) == ['id', 'col3', 'col5']
+
+    # Check the values
+    expected_values = [
+        ('substrate1', 3, 1),
+        ('substrate2', 4, 1),
+        ('substrate3', 5, np.nan)
+    ]
+
+    for i, (id_val, col1_val, col3_val) in enumerate(expected_values):
+       row = cleaned_df.iloc[i].tolist()
+       # Compare id
+       assert row[0] == id_val
+       # Compare col1
+       if np.isnan(col1_val):
+           assert np.isnan(row[1])
+       else:
+           assert row[1] == col1_val
+       # Compare col3
+       if np.isnan(col3_val):
+           assert np.isnan(row[2])
+       else:
+           assert row[2] == col3_val

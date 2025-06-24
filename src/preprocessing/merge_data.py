@@ -63,6 +63,20 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
     return merged_df
 
 
+def remove_nan_columns(df, how='all'):
+    """
+    Remove columns with all NaN values from the DataFrame.
+    """
+    return df.dropna(axis=1, how=how)
+
+
+def remove_no_variance_columns(df):
+    """
+    Remove columns with no variance (constant columns) from the DataFrame.
+    """
+    return df.loc[:, df.nunique(dropna=False) > 1]
+
+
 def main():
     
     # Load configs
