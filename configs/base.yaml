@@ -62,6 +62,8 @@ validation:
   cv_folds: 5
   shuffle: false
   random_state: null
+  remove_nan: true
+  remove_how: all  # 'all' or 'any'
 
 
 model:

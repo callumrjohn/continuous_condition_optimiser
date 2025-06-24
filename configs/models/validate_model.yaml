@@ -18,6 +18,9 @@ validation:
   standard: true
   custom: true
 
+  remove_nan: true
+  remove_how: all  # 'all' or 'any'
+
 
   # Parameters for k_fold validation
   cv_folds: 5
