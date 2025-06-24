@@ -72,7 +72,21 @@ def xy_split(df, remove_columns, target_columns):
     return X.values, y.values
 
 
-def get_validation_dfs(df, id_col, splitter):
+def remove_nan_columns(df, how='all'):
+    """
+    Remove columns with all NaN values from the DataFrame.
+    """
+    return df.dropna(axis=1, how=how)
+
+
+def get_validation_dfs(df, id_col, splitter, **kwargs):
+    remove_nan = kwargs.get('remove_nan', True)
+    how = kwargs.get('how', 'all')
+
+    # Remove NaN columns if specified
+    if remove_nan:
+        df = remove_nan_columns(df, how=how)
+
     unique_ids = df[id_col].unique()
 
     train_sets, test_sets = [], []
