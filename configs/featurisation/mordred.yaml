@@ -6,5 +6,5 @@ featurisation:
   output_features_path: data/features/mordred_descriptors.csv
 
   parameters:
-    missingVal: np.NaN  # Value to use for missing data
+    missingVal: null  # Value to use for missing data
     ignore_3D: true    # Only use 2D descriptors

@@ -7,7 +7,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-def gen_mordred_descriptors(df, smiles_col, id_col, ignore_3D = True, missingVal = np.nan):
+def gen_mordred_descriptors(df, smiles_col, id_col, ignore_3D = True, missingVal = None):
 
     calc = Calculator(descriptors, ignore_3D=ignore_3D)
     desc_names = [str(desc) for desc in calc.descriptors]
@@ -20,6 +20,8 @@ def gen_mordred_descriptors(df, smiles_col, id_col, ignore_3D = True, missingVal
             mord_mol = [missingVal] * len(desc_names)
         else:
             mord_mol = calc(mol)
+            # Convert all non-integer/non-float values to missingVal
+            mord_mol = [missingVal if not isinstance(val, (int, float)) else val for val in mord_mol]
         mord_disc.append(mord_mol)
 
     # Assemble DataFrame

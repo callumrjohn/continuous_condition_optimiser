@@ -46,6 +46,35 @@ conda install --yes --file requirements.txt
 ```
 If generating AQME descriptors, must be run in MacOS of Linux enviroment due to OpenBabel
 
+## Note on Mordred Descriptors
+
+Due to module depreciation, Mordred descriptor generation must be performed in a seperate environment using a previous version of python and modules
+
+```bash
+# Install dependencies
+conda create -n mordred_gen python=3.8
+```
+
+then install the Mordred package...
+
+```bash
+conda activate mordred_gen
+conda install -c rdkit -c mordred-descriptor mordred
+```
+
+then downgrade Numpy and NetworkX...
+
+```bash
+conda install numpy=1.23 networkx=2.3
+conda install pyyaml # if required
+```
+
+Alternatively, there is a community-maintained version available for installation, which claims to fix many of these discrepancies...
+
+```bash
+conda install mordredcommunity # change import boilerplates accordingly...
+```
+
 ## Running Predictions
 
 ```python
