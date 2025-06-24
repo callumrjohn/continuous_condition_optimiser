@@ -20,8 +20,7 @@ def main():
     update_log = cfg['metrics']['update_log']
     metrics_dir = cfg['output']['metrics_dir']
     val_method = cfg['validation']['val_method']
-    remove_nan = cfg['validation']['remove_nan']
-    remove_how = cfg['validation']['remove_how']
+    
 
     # Generate splitter base on val_method in config file
     if val_method == 'leave_one_out':
@@ -38,12 +37,7 @@ def main():
         raise ValueError(f"Validation method {val_method} not supported. Use 'leave_one_out' or 'k_fold'.")
 
     # Generate train/test data splits to itterate through
-    train_dfs, test_dfs = get_validation_dfs(df, 
-                                             cfg['validation']['id_col'], 
-                                             splitter, 
-                                             remove_nan=remove_nan, 
-                                             how=remove_how
-                                             )
+    train_dfs, test_dfs = get_validation_dfs(df, cfg['validation']['id_col'], splitter)
 
     if cfg['validation']['custom']:
         opt_path = cfg['data']['exp_optimum_csv_path']
