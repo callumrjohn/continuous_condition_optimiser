@@ -25,6 +25,10 @@ featurisation:
     missingVal: np.NaN
     silent: True
 
+    # AQME
+    conformer_generation: rdkit
+    optimiser: xtb
+
     n_jobs: -1
 
 
