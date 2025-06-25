@@ -93,3 +93,4 @@ output:
   feature_importance_path: null
   predictions_path: null
   val_log_path: outputs/metrics/validation_log.csv
+  aqme_output_dir: outputs/aqme/

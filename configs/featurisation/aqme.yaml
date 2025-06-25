@@ -1,10 +1,13 @@
 featurisation:
   method: aqme
   output_features_path: data/features/aqme_descriptors.csv
+  smiles_path: data/smiles.csv
+  smiles_column: smiles
+  id_column: substrate_id
 
   parameters:
-    charge: 0
-    multiplicity: 1
     conformer_generation: rdkit
-    optimiser: xTB
-    num_conformers: 1
+    optimiser: xtb
+  
+output:
+  aqme_output_dir: outputs/aqme/
