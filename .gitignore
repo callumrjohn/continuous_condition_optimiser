@@ -68,3 +68,13 @@ desktop.ini    # Windows
 *.bak
 *.tmp
 *.swp
+
+# --------------------------
+# AQME files
+# --------------------------
+*.dat
+outputs/aqme/CSEARCH/
+outputs/aqme/QDESCP/*.json
+outputs/aqme/QDESCP/boltz/
+outputs/aqme/QDESCP/xtb_data/
+
