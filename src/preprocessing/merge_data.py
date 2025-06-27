@@ -3,6 +3,7 @@ import pandas as pd
 from glob import glob
 from functools import reduce
 from src.utils.config import load_config
+from src.utils.data_utils import merge_dfs
 from src.guis.fingerprint_selector import select_fingerprints_tkinter
 
 
@@ -29,10 +30,9 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
     elif len(renamed_fingerprints) == 1:
         merged_df = pd.merge(data, renamed_fingerprints[0], on=id_col, how=how)
         return merged_df
-    
 
-    merged_desc = reduce(lambda left, right: pd.merge(left, right, on=id_col, how=how), renamed_fingerprints)
-    
+    merged_desc = merge_dfs(renamed_fingerprints, on=id_col, how=how)
+
     # Handle duplicate descriptors based on the specified method when combining fingerprints
 
     # Find base column names (without suffix)
