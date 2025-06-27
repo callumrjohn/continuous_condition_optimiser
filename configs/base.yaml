@@ -9,6 +9,7 @@ featurisation:
   smiles_path: data/smiles.csv
   smiles_column: smiles
   id_column: substrate_id
+  mol_column: mol
   method: null
   output_features_path: null
   parameters:
@@ -30,6 +31,11 @@ featurisation:
     optimiser: xtb
 
     n_jobs: -1
+
+  # AQME specific featurisation
+  aqme_desc_path: null
+  chosen_descriptor: null
+  choice_method: null  # or min
 
 
 preprocessing:

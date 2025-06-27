@@ -185,3 +185,49 @@ def test_gen_custom_descriptors():
     assert custom_df.iloc[2, 1:].isnull().all()  # Invalid SMILES should have NaN for all descriptors
 
     assert custom_df["id"].tolist() == ['Caffeine', 'Lamivudine', 'Invalid']  # IDs should match input
+
+
+#----------------- Test function for generating processed AQME descriptors ----------------
+def test_seperate_atomic_descriptors():
+    from src.featurisation.aqme_gen import separate_atomic_descriptors
+    # Mock data
+    atom_df = pd.DataFrame({
+        "substrate_id": ['Caffeine', 'Lamivudine'],
+        "1": [[1.0, 2.0], [3.0, 4.0]],
+        "2": [[5.0, 6.0], [7.0, 8.0]],
+        "3": [9.0, 12.0],
+    })
+    
+    id_col = 'substrate_id'
+    
+    atom_df, mol_df = separate_atomic_descriptors(atom_df, id_col=id_col)
+
+    assert mol_df.shape[1] == 2  # Should have substrate_id and mol column
+    assert atom_df.shape[1] == 3  # Should have substrate_id and two atom columns
+
+    assert mol_df["substrate_id"].tolist() == ['Caffeine', 'Lamivudine']
+    assert atom_df["substrate_id"].tolist() == ['Caffeine', 'Lamivudine']
+
+def test_get_abs_minmax_df():
+    from src.featurisation.aqme_gen import get_abs_minmax_df
+    # Mock data
+    atom_df = pd.DataFrame({
+        "substrate_id": ['Caffeine', 'Lamivudine'],
+        "1": [[1.0, 2.0], [3.0, 4.0]],
+        "2": [[5.0, 6.0], [7.0, 8.0]],
+        "3": [9.0, 12.0],
+    })
+    
+    id_col = 'substrate_id'
+    
+    abs_minmax_df = get_abs_minmax_df(atom_df, id_col=id_col)
+
+    assert abs_minmax_df.shape[1] == 5  # Should have substrate_id and min/max for each column
+
+    assert abs_minmax_df["substrate_id"].tolist() == ['Caffeine', 'Lamivudine']
+    assert abs_minmax_df["1_min"].tolist() == [1.0, 3.0]
+    assert abs_minmax_df["1_max"].tolist() == [2.0, 4.0]
+    assert abs_minmax_df["2_min"].tolist() == [5.0, 7.0]
+    assert abs_minmax_df["2_max"].tolist() == [6.0, 8.0]
+    assert abs_minmax_df["3_min"].tolist() == [9.0, 12.0]
+    assert abs_minmax_df["3_max"].tolist() == [9.0, 12.0]

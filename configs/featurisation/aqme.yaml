@@ -1,9 +1,15 @@
 featurisation:
   method: aqme
   output_features_path: data/features/aqme_descriptors.csv
+  aqme_desc_path: QDESCP/raw_csv_databases/Raw_QDESCP_full_descriptors.csv
   smiles_path: data/smiles.csv
+  
   smiles_column: smiles
   id_column: substrate_id
+  mol_column: mol
+  chosen_descriptor: fukui-
+  choice_method: max # or min
+
 
   parameters:
     conformer_generation: rdkit
