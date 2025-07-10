@@ -5,6 +5,9 @@ class RANDOMModel(BaseEstimator, RegressorMixin):
     def __init__(self, **kwargs): # Dummy kwargs to match the interface
         pass
 
+    def clear_model(self):
+        pass
+
     def fit(self, X, y):
         self.y_min = np.min(y)
         self.y_max = np.max(y)
