@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from src.utils.config import load_config
-from src.utils.model_utils import get_validation_dfs, select_model_and_data 
+from src.utils.model_utils import get_validation_dfs, select_model_and_data, xy_split
 from src.metrics.split_metrics import evaluate_split_standard, evaluate_split_custom
 
 
@@ -11,7 +11,6 @@ def main():
     # Select model and data, then load and initialise
     model, df, model_name, dset_name  = select_model_and_data()
 
-
     # Load configuration files
     config_files = ["configs/base.yaml", "configs/models/validate_model.yaml"]
     cfg = load_config(config_files)
@@ -20,8 +19,15 @@ def main():
     update_log = cfg['metrics']['update_log']
     metrics_dir = cfg['output']['metrics_dir']
     val_method = cfg['validation']['val_method']
-    
 
+    x_values, y_values = xy_split(df, cfg['validation']['id_col'], cfg['validation']['dep_vars'])
+    print(f"Using {len(x_values)} independent variables and {len(y_values)} dependent variables for validation...")
+    # If model is a neural network, set input shape and output units based on the data
+    if hasattr(model, 'input_shape') and hasattr(model, 'output_units'):
+        input_len = x_values.shape[1]  # Exclude constant variables from input shape
+        model.input_shape = (input_len, )
+        model.output_units = y_values.shape[1]
+    
     # Generate splitter base on val_method in config file
     if val_method == 'leave_one_out':
         from sklearn.model_selection import LeaveOneOut
@@ -36,18 +42,21 @@ def main():
     else:
         raise ValueError(f"Validation method {val_method} not supported. Use 'leave_one_out' or 'k_fold'.")
 
+
     # Generate train/test data splits to itterate through
     train_dfs, test_dfs = get_validation_dfs(df, cfg['validation']['id_col'], splitter)
+
 
     if cfg['validation']['custom']:
         opt_path = cfg['data']['exp_optimum_csv_path']
         df_exp_optimum = pd.read_csv(opt_path)
         print(f"Using custom metrics for validation with experimental optimum regions from {opt_path}.")
 
+
     # Itterate through train/test splits and calculate metrics for each experiment. Append dataframes to a list...
     split_metrics_dfs = []
     for i, (df_train, df_test) in enumerate(zip(train_dfs, test_dfs)):
-        
+
         split_metrics = evaluate_split_custom(
             model,
             cfg['validation']['id_col'],
@@ -69,8 +78,6 @@ def main():
     
     # Combine the info from each test/train split into a single DataFrame
     metric_df = pd.concat(split_metrics_dfs, ignore_index=True, axis = 0)
-    
-
 
 
     model_metrics = {
@@ -80,6 +87,7 @@ def main():
     'mean_accuracy': metric_df['accuracy'].mean() if 'accuracy' in metric_df.columns else None,
     'mean_precision': metric_df['precision'].mean() if 'precision' in metric_df.columns else None,
     'mean_overlap': metric_df['overlap'].mean() if 'overlap' in metric_df.columns else None,
+    'mean_recall': metric_df['recall'].mean() if 'recall' in metric_df.columns else None,
     'midpoint_hit_rate': metric_df['midpoint_in_true_region'].sum() / metric_df['midpoint_in_true_region'].count() if 'midpoint_in_true_region' in metric_df.columns else None,
     'max_hit_rate': metric_df['max_in_true_region'].sum() / metric_df['max_in_true_region'].count() if 'max_in_true_region' in metric_df.columns else None,
     }

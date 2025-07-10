@@ -70,6 +70,8 @@ def evaluate_split_custom(model, # Model to evaluate (class)
     # Train the model
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
+
+    model.clear_model()  # Clear the model to reset it
     model.train(X_train, y_train)
 
     if constant_vars is not type(list):
@@ -127,6 +129,8 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         scaler_max = X_test_subset[:, 0].max()
         X_test_subset = scaler.transform(X_test_subset)
         y_pred = model.predict(X_test_subset)
+        if len(y_pred.shape) == 2 and y_pred.shape[1] == 1:
+            y_pred = y_pred.ravel()
 
         mae = mean_absolute_error(y_test_subset, y_pred)
         mse = mean_squared_error(y_test_subset, y_pred)
@@ -157,7 +161,6 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                                  'max_in_true_region': max_in_true_region}
         
         test_combination_metrics.append(combination_metrics)          
-
 
 
     return pd.DataFrame(test_combination_metrics)

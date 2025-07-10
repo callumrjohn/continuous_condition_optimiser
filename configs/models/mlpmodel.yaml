@@ -1,0 +1,17 @@
+model:
+  type: MultiLayerPerceptron
+  model_dir: src/models/architectures/
+  model_config_dir: configs/models/
+  parameters:
+    input_shape: [1, ]  # dummy, will be set during training
+    hidden_layers: [64, 32]
+    activation: relu
+    output_units: 1
+    optimizer: adam
+    loss: mean_squared_error
+    epochs: 40
+    batch_size: 8 
+
+output:
+  model_path: outputs/trained_models/mlp_model.pkl
+  metrics_path: outputs/model_metrics/mlp_metrics.json
