@@ -7,6 +7,8 @@ preprocessing:
   value_name: yield
   drop_nan: True
   
+  melt: False
+  encode: True
   
   one_hot_encode_columns:
     - reagent
