@@ -103,4 +103,6 @@ output:
   feature_importance_path: null
   predictions_path: null
   val_log_path: outputs/metrics/validation_log.csv
+  val_log_archive_dir: outputs/metrics/validation_log_archive
   aqme_output_dir: outputs/aqme/
+
