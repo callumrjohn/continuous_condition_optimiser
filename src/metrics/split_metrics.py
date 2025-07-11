@@ -2,10 +2,12 @@ import itertools
 import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
+from src.utils.data_utils import yield_to_unbounded, unbounded_to_yield
 from src.utils.model_utils import xy_split
 from src.utils.model_utils import xy_split
 from src.metrics.curve_analysis import interpolate_data, find_region, find_optimum
 from src.metrics.custom_metrics import region_accuracy, region_precision, region_overlap, region_recall, is_midpoint_in_true_region, is_max_in_true_region
+
 
 # RUN THEM ALL TOGETHER
 def run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=0, scaler_max=25):
@@ -36,10 +38,15 @@ def evaluate_split_standard(model,
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
+    y_train = yield_to_unbounded(y_train)
+
     model.train(X_train, y_train)
-    
+
     # Calculate standard metrics
     y_pred = model.predict(X_test)
+    
+    y_pred = unbounded_to_yield(y_pred)
+
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
     r2score = r2_score(y_test, y_pred)
