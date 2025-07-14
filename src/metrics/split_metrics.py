@@ -47,9 +47,6 @@ def evaluate_split_standard(model,
     
     y_pred = unbounded_to_yield(y_pred)
 
-    # clip predictions to provide final failsafe
-    y_pred = y_pred.clip(lower=0, upper=100)
-
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
     r2score = r2_score(y_test, y_pred)
