@@ -1,0 +1,16 @@
+data:
+  model_input_dir: data/model_input/
+
+preprocessing:
+  join_key: substrate_id
+
+  value_name: yield
+
+  feature_reduction_method: rfe # Options: fre  None
+  feature_reduction:
+    pca:
+      n_components: 5
+    rfe:
+      n_features_to_select: auto # auto of number of features to select
+      cv_folds: 5 # Number of folds for cross-validation
+      step: 10
