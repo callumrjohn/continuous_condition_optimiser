@@ -4,6 +4,17 @@ from src.models.basemodel import BaseModel
 class SVRModel(BaseModel):
     def __init__(self, **kwargs):
         self._build_model(**kwargs)
+
+    @property
+    def model_params(self):
+        return {
+            "kernel": self.model.kernel,
+            "C": self.model.C,
+            "epsilon": self.model.epsilon,
+            "gamma": self.model.gamma,
+            "degree": self.model.degree,
+            "coef0": self.model.coef0
+        }
         
     def _build_model(self, **kwargs):
         self.model = SVR(**kwargs)

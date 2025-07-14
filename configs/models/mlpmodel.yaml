@@ -6,11 +6,13 @@ model:
     input_shape: [1, ]  # dummy, will be set during training
     hidden_layers: [64, 32]
     activation: relu
+    dropout_rate: 0.2
     output_units: 1
-    optimizer: adam
+    optimizer: adam # only adam is supported currently
+    learning_rate: 0.001
     loss: mean_squared_error
-    epochs: 40
-    batch_size: 8 
+    epochs: 100
+    batch_size: 8
 
 output:
   model_path: outputs/trained_models/mlp_model.pkl

@@ -4,6 +4,7 @@ from glob import glob
 import pandas as pd
 from src.utils.config import load_config
 from src.guis.data_model_selector import select_data_models_tkinter
+from src.guis.input_data_selector import select_input_data_tkinter
 
 
 def load_model_class(model_name: str):
@@ -57,6 +58,23 @@ def select_model_and_data():
     df = pd.read_csv(data_path)
 
     return model, df, model_name, dset_name
+
+def select_input_data():
+
+    config_files = ["configs/base.yaml"]
+    cfg = load_config(config_files)
+
+    input_data_dir = cfg['data']['model_input_dir']
+    data_names = [os.path.basename(f).replace('.csv', '') for f in glob(f'{input_data_dir}\*.csv')]
+
+    dset_name = select_input_data_tkinter(data_names)
+
+    print(f"Selected Dataset: {dset_name}")
+
+    data_path = os.path.join(input_data_dir, f"{dset_name}.csv")
+    df = pd.read_csv(data_path)
+
+    return df, dset_name
 
 
 def xy_split(df, remove_columns, target_columns):

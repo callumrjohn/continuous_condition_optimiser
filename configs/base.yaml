@@ -52,6 +52,17 @@ preprocessing:
   one_hot_encode_columns:
     - reagent
   # - extend if mulitple columns need to be one-hot encoded
+  feature_reduction_method: null
+  feature_reduction:
+    pca:
+      n_components: 30
+    rfe:
+      id_col: substrate_id
+      constant_cols: []
+      target_cols: []
+      n_features_to_select: 50
+      step: 10
+    # Add more feature reduction methods as needed
 
 
 training:
