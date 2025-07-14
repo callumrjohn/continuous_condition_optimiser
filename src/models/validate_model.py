@@ -21,7 +21,9 @@ def main():
     val_method = cfg['validation']['val_method']
 
     x_values, y_values = xy_split(df, cfg['validation']['id_col'], cfg['validation']['dep_vars'])
-    print(f"Using {len(x_values)} independent variables and {len(y_values)} dependent variables for validation...")
+
+    n_features = x_values.shape[1]
+
     # If model is a neural network, set input shape and output units based on the data
     if hasattr(model, 'input_shape') and hasattr(model, 'output_units'):
         input_len = x_values.shape[1]  # Exclude constant variables from input shape
@@ -113,7 +115,9 @@ def main():
         from src.utils.log_utils import update_log_csv
         log_path = cfg['output']['val_log_path']
         new_entry = {'model': model_name,
-                       'datset': dset_name,
+                     'model_params': model.model_params if hasattr(model, 'model_params') else {},
+                       'dataset': dset_name,
+                       'n_features': n_features,
                        'val_method': val_method,
                        'timestamp': timestamp,}
         new_entry.update(model_metrics)
