@@ -1,53 +1,38 @@
 import os
+import pandas as pd
 from src.utils.config import load_config
 
 
-def clear_val_results(dir):
-    
-    if not os.path.exists(dir):
-        print(f"Log directory '{dir}' does not exist.")
+def archive_val_log(val_log_path, val_log_archive_dir=None):
+
+    if not os.path.exists(val_log_path):
+        print(f"Log directory '{val_log_path}' does not exist.")
         return
 
-    for filename in os.listdir(dir):
-        file_path = os.path.join(dir, filename)
-        try:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
-                os.rmdir(file_path)
-                print(f"Removed log directory: {file_path}")
-        except Exception as e:
-            print(f"Error removing {file_path}: {e}")
+    if val_log_archive_dir is None:
+        print("No archive directory specified.")
+        return
+    
+    os.makedirs(val_log_archive_dir, exist_ok=True)
+
+    timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M')
+    new_val_log_path = os.path.join(val_log_archive_dir, f"validation_log_pre_{timestamp}.csv")
+    os.rename(val_log_path, new_val_log_path)
+
+    try:
+        os.remove(val_log_path)
+    
+    except Exception as e:
+        print(f"Error removing {val_log_path}: {e}")
         
-def clear_logs(path):
-
-    if not os.path.exists(path):
-        print(f"Log '{path}' does not exist.")
-        return
-    
-    with open(path, 'w') as file:
-        print(f"Cleared contents of log file: {path}")
-
-
 
 def main():
     config_files = ["configs/base.yaml"]
     cfg = load_config(config_files)
+    val_log_path = cfg['output']['val_log_path']
+    val_log_archive_dir= cfg['output']['val_log_archive_dir']
 
-    log_dir = cfg['featurisation']['log_dir']
-    val_results_dir = cfg['featurisation']['val_results_dir']
-
-    clear_logs_bool = input("Do you want to clear logs? (yes/no): ").strip().lower()
-    if clear_logs_bool == 'yes':
-        clear_logs(cfg['featurisation']['log_path'])
-    else:
-        print("Skipping log clearing.")
-    
-    clear_val_results_bool = input("Do you want to clear validation results? (yes/no): ").strip().lower()
-    if clear_val_results_bool == 'yes':
-        clear_val_results(val_results_dir)
-    else:
-        print("Skipping validation results clearing.")
+    archive_val_log(val_log_path, val_log_archive_dir)
     
 if __name__ == "__main__":
     main()

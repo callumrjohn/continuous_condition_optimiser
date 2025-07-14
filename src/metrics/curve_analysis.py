@@ -3,6 +3,12 @@ import numpy as np
 
 # Derive a yield curve from the given data points using linear interpolation.
 def interpolate_data(X, y, inter_step = 0.1):
+    
+    #Sort the data points based on X values
+    sort_idx = np.argsort(X)
+    X = X[sort_idx]
+    y = y[sort_idx]
+
     X = np.array(X)
     y = np.array(y)
 

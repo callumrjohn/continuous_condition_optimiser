@@ -7,7 +7,7 @@ from src.utils.data_utils import merge_dfs
 from src.guis.fingerprint_selector import select_fingerprints_tkinter
 
 
-def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'first', desc_labels=None):
+def gen_merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'first', desc_labels=None):
 
     if how not in ['inner', 'outer', 'left', 'right']:
         raise ValueError("Invalid 'how' parameter. Choose from 'inner', 'outer', 'left', or 'right'.")
@@ -31,10 +31,9 @@ def merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'fi
         merged_df = pd.merge(data, renamed_fingerprints[0], on=id_col, how=how)
         return merged_df
 
-    merged_desc = merge_dfs(renamed_fingerprints, on=id_col, how=how)
+    merged_desc = merge_dfs(renamed_fingerprints, id_col, how=how)
 
     # Handle duplicate descriptors based on the specified method when combining fingerprints
-
     # Find base column names (without suffix)
     base_names = {}
     for col in merged_desc.columns:
@@ -116,9 +115,9 @@ def main():
     data = pd.read_csv(data_input_path)
     if id_col not in data.columns:
         raise ValueError(f"ID column '{id_col}' not found in data file: {data_input_path}")
-    
-    merged_df = merge_dfs(data, selected_fingerprints, id_col=id_col, how=how, duplicate_selection=duplicate_selection, desc_labels=selected_names)
-    
+
+    merged_df = gen_merge_dfs(data, selected_fingerprints, id_col=id_col, how=how, duplicate_selection=duplicate_selection, desc_labels=selected_names)
+
     file_name = f"data_{'_'.join(selected_names)}.csv"
     print(file_name)
     output_path = os.path.join(output_dir, file_name)

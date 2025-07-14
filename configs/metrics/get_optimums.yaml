@@ -2,7 +2,7 @@ data:
   yield_path: data/exp_data.csv
 
 preprocessing:
-  melt: True
+  melt: False
   id_vars:
     - substrate_id
     - reagent
