@@ -1,9 +1,11 @@
+import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFE, RFECV
 from sklearn.ensemble import RandomForestRegressor
 from src.utils.config import load_config
 from src.utils.model_utils import select_input_data
+from sklearn.utils import resample
 
 def pca_reduce_dataframe(df, id_col, target_cols, n_components):
     # Separate features, id, and targets
@@ -62,6 +64,52 @@ def rfe_reduce_dataframe(df, id_col, target_cols, n_features_to_select, cv=5, st
     reduced_df = reduced_df[cols_order]
     return reduced_df
 
+
+def rfe_reduce_dataframe_bootstrap(
+    df, id_col, target_cols, n_features_to_select, 
+    n_bootstraps=10, step=10, random_state=42
+):
+    # Separate features, id, and targets
+    feature_cols = [col for col in df.columns if col not in ([id_col] + target_cols)]
+    X = df[feature_cols].values
+    ids = df[id_col].values
+    targets = df[target_cols].values
+    y = targets.ravel() if targets.ndim > 1 and targets.shape[1] == 1 else targets
+
+    # Set up rank accumulation
+    n_features = X.shape[1]
+    rank_accumulator = np.zeros(n_features)
+
+    # Perform bootstrapping
+    for i in range(n_bootstraps):
+        # Bootstrap resample
+        X_resampled, y_resampled = resample(X, y, random_state=random_state + i)
+
+        # Fit RFE with RF on bootstrap sample
+        estimator = RandomForestRegressor(n_estimators=100, random_state=random_state + i)
+        rfe = RFE(estimator, n_features_to_select=min(n_features_to_select, n_features), step=step)
+        rfe.fit(X_resampled, y_resampled)
+
+        # Accumulate feature ranks
+        rank_accumulator += rfe.ranking_
+
+    # Average ranks and select top features
+    avg_ranks = rank_accumulator / n_bootstraps
+    selected_indices = np.argsort(avg_ranks)[:n_features_to_select]
+    selected_features = [feature_cols[i] for i in selected_indices]
+
+    # Create new DataFrame with selected features
+    reduced_df = pd.DataFrame(df[selected_features].values, columns=selected_features)
+    reduced_df[id_col] = ids
+    for i, col in enumerate(target_cols):
+        reduced_df[col] = targets[:, i] if targets.ndim > 1 else targets
+
+    # Reorder columns: id, targets, selected features
+    cols_order = [id_col] + target_cols + selected_features
+    reduced_df = reduced_df[cols_order]
+    return reduced_df
+
+
 def main():
     config_files = ["configs/base.yaml", "configs/preprocessing/feature_reduction.yaml"]
     cfg = load_config(config_files)
@@ -87,6 +135,18 @@ def main():
             n_features_to_select=features_to_select, 
             step=step,
             cv=cv_folds
+        )
+    elif feature_reduction_method == 'rfe_bootstrap':
+
+        n_bootstraps = cfg['preprocessing']['feature_reduction']['rfe_bootstrap']['n_bootstraps']
+        reduced_df = rfe_reduce_dataframe_bootstrap(
+            df, 
+            id_col=id_col, 
+            target_cols=[value_name], 
+            n_features_to_select=features_to_select, 
+            
+            n_bootstraps=n_bootstraps, 
+            step=step
         )
     else:
         raise ValueError(f"Feature reduction method '{feature_reduction_method}' not supported. Use 'rfe'.")
