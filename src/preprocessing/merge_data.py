@@ -92,6 +92,10 @@ def main():
     how = cfg['preprocessing']['join_type']
     duplicate_selection = cfg['preprocessing']['duplicate_selection']
     #desc_labels = cfg['preprocessing']['desc_labels']
+
+    # Column deletion parameters
+    remove_nan_columns_flag = cfg['preprocessing']['remove_nan_columns']
+    remove_no_variance_columns_flag = cfg['preprocessing']['remove_no_variance_columns']
     
     
     fingerprints_input_paths = glob(fingerprints_input_dir + "/*.csv")
@@ -117,6 +121,18 @@ def main():
         raise ValueError(f"ID column '{id_col}' not found in data file: {data_input_path}")
 
     merged_df = gen_merge_dfs(data, selected_fingerprints, id_col=id_col, how=how, duplicate_selection=duplicate_selection, desc_labels=selected_names)
+
+    if remove_nan_columns_flag:
+        how = cfg['preprocessing']['nan_removal_method']
+        if how not in ['all', 'any']:
+            raise ValueError("Invalid 'how' parameter for NaN removal. Choose from 'all' or 'any'.")
+        merged_df = remove_nan_columns(merged_df, how=how)
+        print(f"Removed columns with {how} NaN values.")
+
+    if remove_no_variance_columns_flag:
+        merged_df = remove_no_variance_columns(merged_df)
+        print(f"Removed columns with no variance.")
+
 
     file_name = f"data_{'_'.join(selected_names)}.csv"
     print(file_name)

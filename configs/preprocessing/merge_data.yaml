@@ -7,3 +7,8 @@ preprocessing:
   join_type: inner
   duplicate_selection: first
   desc_labels: True
+
+  remove_nan_columns: True
+  nan_removal_method: all
+
+  remove_no_variance_columns: True
