@@ -19,13 +19,13 @@ Halogenation is a key transformation in pharmaceutical synthesis. Using a high-t
 
 - Input: SMILES string of a pharmaceutical, halogenation type
 - Output: Predicted reaction conditions
-- Trained on curated reaction datasets
+- Trained on a reaction dataset curated using HTE
 
 ## Usage
 
 1. Prepare input data (SMILES, reaction type)
 2. Run the prediction model
-3. Obtain recommended conditions
+3. Obtain recommended conditions, with an acid/yield response curve generated
 
 ## Installation
 
