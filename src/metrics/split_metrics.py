@@ -4,8 +4,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 from src.utils.data_utils import yield_to_unbounded, unbounded_to_yield
-from src.utils.model_utils import xy_split
-from src.utils.model_utils import xy_split
+from src.utils.model_utils import xy_split, extend_x
 from src.metrics.curve_analysis import interpolate_data, find_region, find_optimum
 from src.metrics.custom_metrics import region_accuracy, region_precision, region_overlap, region_recall, is_midpoint_in_true_region, is_max_in_true_region
 
@@ -145,11 +144,12 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         r2score = r2_score(y_test_subset, y_pred)
 
 
-        X_pred_curve = np.arange(scaler_min, scaler_max, 0.1)
-        y_pred_curve = model.predict(scaler.transform(X_pred_curve.reshape(-1, 1)))
-        X_interpolated_pred, y_interpolated_pred = interpolate_data(X_pred_curve, y_pred_curve, inter_step=iter_step)
+        X_pred_expanded, X_expanded_values = extend_x(df_test_subset, indep_var, id_var, dep_var)
+
+        y_pred_curve = model.predict(scaler.transform(X_pred_expanded))
+        X_interpolated_pred, y_interpolated_pred = interpolate_data(X_expanded_values, y_pred_curve, inter_step=iter_step)
         X_predmin, X_predmax = find_region(X_interpolated_pred, y_interpolated_pred, threshold=threshold)
-        X_predopt, y_predopt = find_optimum(X_pred_curve, y_pred_curve)
+        X_predopt, y_predopt = find_optimum(X_expanded_values, y_pred_curve)
 
         # Run custom metrics and append results
         accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region = run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=scaler_min, scaler_max=scaler_max)

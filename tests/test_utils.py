@@ -34,6 +34,31 @@ def test_xy_split():
     assert np.array_equal(X, expected_X)
     assert np.array_equal(y, expected_y)
 
+def test_extend_x():
+    from src.utils.model_utils import extend_x
+
+    # Create a mock DataFrame
+    df = pd.DataFrame({
+        'id': ['sample1', 'sample2', 'sample3'],
+        'feature1': [1, 1, 1],
+        'feature2': [3, 3, 3],
+        'feature3': [2, 2, 2],
+        'feature4': [0, 3, 4],
+        'target': [70, 80, 90]
+    })
+
+    ind_var = 'feature4'
+    remove_columns = ['id']
+    target_columns = 'target'
+    # Extend the DataFrame
+    X_extended, X_extended_values = extend_x(df, ind_var, remove_columns, target_columns, step=0.1)
+    # Check the shape of the extended DataFrame
+    assert X_extended[:, 3].tolist() == np.arange(0, 4, 0.1).tolist()
+    assert X_extended_values == np.arange(0, 4, 0.1).tolist()
+    assert len(set(X_extended[:, 2])) == 1
+    assert X_extended.shape == (40, 4)
+    
+
 def test_get_validation_df_kfold():
     from src.utils.model_utils import get_validation_dfs
     from sklearn.model_selection import KFold
