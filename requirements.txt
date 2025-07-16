@@ -8,3 +8,4 @@ aqme
 openbabel
 rdkit
 tensorflow
+gauche
