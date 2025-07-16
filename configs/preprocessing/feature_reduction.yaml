@@ -6,11 +6,16 @@ preprocessing:
 
   value_name: yield
 
-  feature_reduction_method: rfe # Options: fre  None
+  feature_reduction_method: rfe_bootstrap # Options: rfe, rfe_bootstrap  None
   feature_reduction:
     pca:
       n_components: 5
     rfe:
-      n_features_to_select: auto # auto of number of features to select
+      n_features_to_select: 30 # auto of number of features to select
+      cv_folds: 5 # Number of folds for cross-validation
+      step: 10
+    rfe_bootstrap:
+      n_bootstraps: 10
+      n_features_to_select: 100 # auto of number of features to select
       cv_folds: 5 # Number of folds for cross-validation
       step: 10
