@@ -27,12 +27,14 @@ def load_model_class(model_name: str):
         raise ImportError(f"Could not import {class_name} from {class_import}: {e}")
 
 
-def select_model_and_data():
+def select_model_and_data(input_data_dir):
+
 
     config_files = ["configs/base.yaml"]
     cfg = load_config(config_files)
 
-    input_data_dir = cfg['data']['model_input_dir']
+    if not input_data_dir:
+        input_data_dir = cfg['data']['model_input_dir']
     model_dir = cfg['model']['model_dir']
     model_config_dir = cfg['model']['model_config_dir']
 

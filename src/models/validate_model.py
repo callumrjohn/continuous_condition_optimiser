@@ -7,10 +7,6 @@ from src.metrics.split_metrics import evaluate_split_standard, evaluate_split_cu
 
 def main():
 
-
-    # Select model and data, then load and initialise
-    model, df, model_name, dset_name  = select_model_and_data()
-
     # Load configuration files
     config_files = ["configs/base.yaml", "configs/models/validate_model.yaml"]
     cfg = load_config(config_files)
@@ -19,6 +15,13 @@ def main():
     update_log = cfg['metrics']['update_log']
     metrics_dir = cfg['output']['metrics_dir']
     val_method = cfg['validation']['val_method']
+
+    input_dir = cfg['data']['model_input_dir']
+
+    # Select model and data, then load and initialise
+    model, df, model_name, dset_name  = select_model_and_data(input_dir)
+
+    
 
     x_values, y_values = xy_split(df, cfg['validation']['id_col'], cfg['validation']['dep_vars'])
 

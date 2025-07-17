@@ -1,5 +1,6 @@
 data:
-  model_input_dir: data/model_input/
+  model_input_dir: data/model_input/archive/
+  exp_optimum_csv_path: data/old_data/exp_optimum_regions.csv
 
 training:
   columns_to_remove:
