@@ -5,6 +5,9 @@ class XGBModel(BaseModel):
     def __init__(self, **kwargs):
         self._build_model(**kwargs)
 
+    def __str__(self):
+        return "XGBoostRegressor"
+
     @property
     def model_params(self):
         return {

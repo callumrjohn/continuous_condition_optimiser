@@ -5,6 +5,9 @@ class RANDOMModel(BaseEstimator, RegressorMixin):
     def __init__(self, **kwargs): # Dummy kwargs to match the interface
         pass
 
+    def __str__(self):
+        return "RANDOMModel"
+
     def clear_model(self):
         pass
 
