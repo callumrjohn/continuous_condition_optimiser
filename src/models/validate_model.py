@@ -69,7 +69,8 @@ def main():
             df_test,
             df_exp_optimum if cfg['validation']['custom'] else None,
             iter_step=cfg['metrics']['iter_step'],
-            threshold=cfg['metrics']['threshold']
+            threshold=cfg['metrics']['threshold'],
+            sigmoid_bound=cfg['validation']['sigmoid_bound'] if 'sigmoid_bound' in cfg['metrics'] else False
         )
         # Add info about the split
         #print(type(split_metrics))

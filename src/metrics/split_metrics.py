@@ -29,7 +29,7 @@ def evaluate_split_standard(model,
                    dep_vars,
                    train_df,
                    test_df,
-                   ):
+                   sigmoid_bound=False):
     X_train, y_train = xy_split(train_df, id_var, dep_vars)
     X_test, y_test = xy_split(test_df, id_var, dep_vars)
 
@@ -38,14 +38,16 @@ def evaluate_split_standard(model,
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    y_train = yield_to_unbounded(y_train)
+    if sigmoid_bound:
+        y_train = yield_to_unbounded(y_train)
 
     model.train(X_train, y_train)
 
     # Calculate standard metrics
     y_pred = model.predict(X_test)
     
-    y_pred = unbounded_to_yield(y_pred)
+    if sigmoid_bound:
+        y_pred = unbounded_to_yield(y_pred)
 
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
@@ -65,6 +67,7 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                    df_exp_optimum, # DataFrame of experimental optimum regions (non-encoded) - Generated using get_optimums.py
                    iter_step=0.1,
                    threshold=0.9,
+                   sigmoid_bound=False
                    ):
     #print(df_exp_optimum.columns)
     
@@ -79,6 +82,11 @@ def evaluate_split_custom(model, # Model to evaluate (class)
     X_train = scaler.fit_transform(X_train)
 
     model.clear_model()  # Clear the model to reset it
+
+    
+    if sigmoid_bound:
+        y_train = yield_to_unbounded(y_train)
+
     model.train(X_train, y_train)
 
     if constant_vars is not type(list):
@@ -100,9 +108,11 @@ def evaluate_split_custom(model, # Model to evaluate (class)
     for combination in unique_combinations:
         print(f"Evaluating combination: {combination}")
         
+        # Check if the optimum region exists for combination in df_exp_optimum
         if df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)].empty:
             print(f"No experimental optimum region found for this combination: {combination}. Skipping...")
             continue
+
 
         # Get the optimum region for the current combination of constant variables from df_exp_optimum
         combination_exp_row = df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)]
@@ -134,11 +144,18 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         #print(X_test_subset[:, 0])
         scaler_min = X_test_subset[:, 0].min()
         scaler_max = X_test_subset[:, 0].max()
+        
         X_test_subset = scaler.transform(X_test_subset)
+        
         y_pred = model.predict(X_test_subset)
+
+        if sigmoid_bound:
+            y_pred = unbounded_to_yield(y_pred)
+        
         if len(y_pred.shape) == 2 and y_pred.shape[1] == 1:
             y_pred = y_pred.ravel()
 
+        # Standard metrics
         mae = mean_absolute_error(y_test_subset, y_pred)
         mse = mean_squared_error(y_test_subset, y_pred)
         r2score = r2_score(y_test_subset, y_pred)

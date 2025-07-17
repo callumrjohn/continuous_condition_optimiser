@@ -17,6 +17,7 @@ validation:
     - reagent
   standard: true
   custom: true
+  sigmoid_bound: true
 
   # Parameters for k_fold validation
   cv_folds: 5
@@ -27,7 +28,7 @@ metrics:
   threshold: 0.9
   iter_step: 0.1
   save: true
-  update_log: true 
+  update_log: true
   
 model:
   model_dir: src/models/architectures/
