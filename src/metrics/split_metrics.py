@@ -71,6 +71,10 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                    ):
     #print(df_exp_optimum.columns)
     
+    # Get all values the model will be trained on for the independent variable
+    X_values_all = list(df_train[indep_var].values) + list(df_test[indep_var].values)
+    X_values_unique = np.unique(X_values_all)
+    #print(f"Unique values for {indep_var}: {X_values_unique}")
 
     # Initialize list to store metrics for each combination
     test_combination_metrics = []
@@ -160,13 +164,21 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         mse = mean_squared_error(y_test_subset, y_pred)
         r2score = r2_score(y_test_subset, y_pred)
 
-
-        X_pred_expanded, X_expanded_values = extend_x(df_test_subset, indep_var, id_var, dep_var)
-
-        y_pred_curve = model.predict(scaler.transform(X_pred_expanded))
-        X_interpolated_pred, y_interpolated_pred = interpolate_data(X_expanded_values, y_pred_curve, inter_step=iter_step)
+        if str(model) == 'MultiLayerPerceptron':
+            # Generate range for the independent variable
+            ind_min = df_test_subset[indep_var[0]].min()
+            ind_max = df_test_subset[indep_var[0]].max()
+            granular_values = np.arange(ind_min, ind_max + iter_step, iter_step)
+            
+            X_pred_expanded, X_interpolated_pred = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values)
+            y_interpolated_pred = model.predict(scaler.transform(X_pred_expanded)).ravel()
+        else:
+            X_pred_expanded, _ = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values = X_values_unique)
+            y_pred_curve = model.predict(scaler.transform(X_pred_expanded)).ravel()
+            X_interpolated_pred, y_interpolated_pred = interpolate_data(X_values_unique, y_pred_curve, inter_step=iter_step)
+        
         X_predmin, X_predmax = find_region(X_interpolated_pred, y_interpolated_pred, threshold=threshold)
-        X_predopt, y_predopt = find_optimum(X_expanded_values, y_pred_curve)
+        X_predopt, y_predopt = find_optimum(X_interpolated_pred, y_interpolated_pred)
 
         # Run custom metrics and append results
         accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region = run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=scaler_min, scaler_max=scaler_max)
