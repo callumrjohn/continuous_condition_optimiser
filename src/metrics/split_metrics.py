@@ -169,7 +169,9 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                                  'overlap': overlap,
                                  'recall': recall,
                                  'midpoint_in_true_region': midpoint_in_true_region,
-                                 'max_in_true_region': max_in_true_region}
+                                 'max_in_true_region': max_in_true_region,
+                                 'y_pred': y_interpolated_pred,
+                                 'X_pred': X_interpolated_pred,}
         
         test_combination_metrics.append(combination_metrics)          
 
