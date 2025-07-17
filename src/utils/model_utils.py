@@ -39,7 +39,7 @@ def select_model_and_data(input_data_dir):
     model_config_dir = cfg['model']['model_config_dir']
 
     data_names = [os.path.basename(f).replace('.csv', '') for f in glob(f'{input_data_dir}\*.csv')]
-    model_names = [os.path.basename(f).replace('.py', '') for f in glob(f'{model_dir}\*.py')]
+    model_names = [os.path.basename(f).replace('.py', '') for f in glob(f'{model_dir}\*.py') if not f.endswith('__init__.py')]
 
     dset_name, model_name = select_data_models_tkinter(data_names, model_names)
 
