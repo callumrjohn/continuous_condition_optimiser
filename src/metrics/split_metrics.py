@@ -166,8 +166,8 @@ def evaluate_split_custom(model, # Model to evaluate (class)
 
         if str(model) == 'MultiLayerPerceptron':
             # Generate range for the independent variable
-            ind_min = df_test_subset[indep_var[0]].min()
-            ind_max = df_test_subset[indep_var[0]].max()
+            ind_min = df_test_subset[indep_var].min()
+            ind_max = df_test_subset[indep_var].max()
             granular_values = np.arange(ind_min, ind_max + iter_step, iter_step)
             
             X_pred_expanded, X_interpolated_pred = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values)
