@@ -1,0 +1,10 @@
+model,model_params,dataset,timestamp,mae,mse,r2score
+rfmodel,"{'n_estimators': 100, 'max_depth': 6, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'sqrt', 'bootstrap': True}",data_morgan,14-08-2025_13.04,23.496169567711725,743.4950271854036,0.3753225116800841
+rfmodel,"{'n_estimators': 100, 'max_depth': 6, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'sqrt', 'bootstrap': True}",data_rdkit,14-08-2025_13.05,17.158120681874774,533.5557000906481,0.5511000537462931
+rfmodel,"{'n_estimators': 100, 'max_depth': 6, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'sqrt', 'bootstrap': True}",data_morgan,14-08-2025_13.06,23.496169567711725,743.4950271854035,0.3753225116800841
+rfmodel,"{'n_estimators': 100, 'max_depth': 6, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'sqrt', 'bootstrap': True}",data_mordred,14-08-2025_13.06,17.24918147651796,542.6387510009392,0.543094713455065
+svrmodel,"{'kernel': 'rbf', 'C': 1.0, 'epsilon': 0.1, 'gamma': 'scale', 'degree': 3, 'coef0': 0.0}",data_morgan,14-08-2025_13.07,25.14433547403941,1230.7376871562944,-0.02537162918139795
+svrmodel,"{'kernel': 'rbf', 'C': 1.0, 'epsilon': 0.1, 'gamma': 'scale', 'degree': 3, 'coef0': 0.0}",data_rdkit,14-08-2025_13.07,25.78320441847466,1261.9912910934486,-0.051131533300436585
+xgbmodel,{},data_morgan,14-08-2025_13.07,9.425967216978291,211.6993655006021,0.820522990007932
+xgbmodel,{},data_rdkit,14-08-2025_13.08,8.954285649145795,195.85482262590713,0.835808193421359
+xgbmodel,{},data_mordred,14-08-2025_13.08,8.522519591383046,184.07856095087942,0.8445789215522964

@@ -1,0 +1,35 @@
+data:
+  model_input_dir: data/model_input/
+
+training:
+  columns_to_remove:
+    - substrate_id
+  target_variables: 
+    - yield
+  
+validation:
+  id_col: substrate_id
+  val_method: leave_one_out # Options: leave_one_out, k_fold
+  indep_vars: tfa_equivalents
+  dep_vars: yield
+  constant_vars: 
+    - substrate_id
+    - reagent
+
+  # Parameters for k_fold validation
+  cv_folds: 5
+  shuffle: true
+  random_state: 42
+
+metrics:
+  save: true
+  
+model:
+  model_dir: src/models/architectures/
+
+logging:
+  save_logs: true
+  log_level: INFO
+
+output:
+  val_log_path: outputs/metrics/benchmark_screening.csv
