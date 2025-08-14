@@ -42,8 +42,8 @@ def main():
         from sklearn.model_selection import KFold
         shuffle = cfg['validation'].get('shuffle', True)
         random_state = cfg['validation'].get('random_state', 42)
-        splitter = KFold(n_splits=cfg['validation']['k_folds'], shuffle=shuffle, random_state=random_state)
-        print(f"Using K-Fold cross-validation with {cfg['validation']['k_folds']} folds for validation (change in config file validate_model.yaml).")
+        splitter = KFold(n_splits=cfg['validation']['cv_folds'], shuffle=shuffle, random_state=random_state)
+        print(f"Using K-Fold cross-validation with {cfg['validation']['cv_folds']} folds for validation (change in config file validate_model.yaml).")
     else:
         raise ValueError(f"Validation method {val_method} not supported. Use 'leave_one_out' or 'k_fold'.")
 
@@ -107,7 +107,7 @@ def main():
         if val_method == 'leave_one_out':
             metric_df_filename = f"{model_name}_{dset_name}_loo_{timestamp}.csv"
         elif val_method == 'k_fold':
-            metric_df_filename = f"{model_name}_{dset_name}_kfold{cfg['validation']['k_folds']}_{timestamp}.csv"
+            metric_df_filename = f"{model_name}_{dset_name}_kfold{cfg['validation']['cv_folds']}_{timestamp}.csv"
         
         metric_df_path = os.path.join(metrics_dir, metric_df_filename)
         #print(metric_df_path)

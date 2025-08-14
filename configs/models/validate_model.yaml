@@ -1,6 +1,6 @@
 data:
-  model_input_dir: data/model_input/archive/
-  exp_optimum_csv_path: data/old_data/exp_optimum_regions.csv
+  model_input_dir: data/model_input/
+  exp_optimum_csv_path: data/metrics/exp_optimum_regions.csv
 
 training:
   columns_to_remove:
@@ -10,14 +10,14 @@ training:
   
 validation:
   id_col: substrate_id
-  val_method: leave_one_out # Options: leave_one_out, k_fold
+  val_method: k_fold # Options: leave_one_out, k_fold
   indep_vars: tfa_equivalents
   dep_vars: yield
   constant_vars: 
     - substrate_id
     - reagent
   standard: true
-  custom: true
+  custom: false
   sigmoid_bound: true
 
   # Parameters for k_fold validation
