@@ -27,17 +27,19 @@ def load_model_class(model_name: str):
         raise ImportError(f"Could not import {class_name} from {class_import}: {e}")
 
 
-def select_model_and_data():
+def select_model_and_data(input_data_dir):
+
 
     config_files = ["configs/base.yaml"]
     cfg = load_config(config_files)
 
-    input_data_dir = cfg['data']['model_input_dir']
+    if not input_data_dir:
+        input_data_dir = cfg['data']['model_input_dir']
     model_dir = cfg['model']['model_dir']
     model_config_dir = cfg['model']['model_config_dir']
 
     data_names = [os.path.basename(f).replace('.csv', '') for f in glob(f'{input_data_dir}\*.csv')]
-    model_names = [os.path.basename(f).replace('.py', '') for f in glob(f'{model_dir}\*.py')]
+    model_names = [os.path.basename(f).replace('.py', '') for f in glob(f'{model_dir}\*.py') if not f.endswith('__init__.py')]
 
     dset_name, model_name = select_data_models_tkinter(data_names, model_names)
 
@@ -90,8 +92,7 @@ def xy_split(df, remove_columns, target_columns):
     y = df[target_columns] # if len(target_columns) > 1 else df[target_columns[0]]
     return X.values, y.values
 
-def extend_x(df, ind_var, remove_columns, target_columns, step = 0.2):
-
+def extend_x(df, ind_var, remove_columns, target_columns, granular_values):
     if isinstance(remove_columns, str):
         remove_columns = [remove_columns]
     if isinstance(target_columns, str):
@@ -101,15 +102,19 @@ def extend_x(df, ind_var, remove_columns, target_columns, step = 0.2):
     if len(ind_var) > 1:
         raise ValueError("This function only supports a single independent variable.")    
 
-    df = df.drop(columns=remove_columns)
-    X = df.drop(columns=target_columns)
-    ind_values = X[ind_var[0]].unique()  # Use ind_var[0] to get the column name as string
-    granular_values = np.arange(ind_values.min(), ind_values.max(), step)
-    other_cols = X.drop(ind_var, axis=1).drop_duplicates()
-    granular_df = pd.DataFrame({ind_var[0]: granular_values})
+    # Drop ID and target columns (not part of features)
+    df_features = df.drop(columns=remove_columns + target_columns)
+    
+    # Pick a representative row to clone all constant feature values
+    base_row = df_features.iloc[0].copy()
 
-    # Cross join to get all combinations
-    X_expanded = other_cols.assign(key=1).merge(granular_df.assign(key=1), on='key').drop('key', axis=1)
+    X_rows = []
+    for val in granular_values:
+        row = base_row.copy()
+        row[ind_var[0]] = val
+        X_rows.append(row)
+
+    X_expanded = pd.DataFrame(X_rows)
 
     return X_expanded.values, X_expanded[ind_var[0]].values
 

@@ -29,7 +29,7 @@ def evaluate_split_standard(model,
                    dep_vars,
                    train_df,
                    test_df,
-                   ):
+                   sigmoid_bound=False):
     X_train, y_train = xy_split(train_df, id_var, dep_vars)
     X_test, y_test = xy_split(test_df, id_var, dep_vars)
 
@@ -38,14 +38,16 @@ def evaluate_split_standard(model,
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    y_train = yield_to_unbounded(y_train)
+    if sigmoid_bound:
+        y_train = yield_to_unbounded(y_train)
 
     model.train(X_train, y_train)
 
     # Calculate standard metrics
     y_pred = model.predict(X_test)
     
-    y_pred = unbounded_to_yield(y_pred)
+    if sigmoid_bound:
+        y_pred = unbounded_to_yield(y_pred)
 
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
@@ -65,9 +67,14 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                    df_exp_optimum, # DataFrame of experimental optimum regions (non-encoded) - Generated using get_optimums.py
                    iter_step=0.1,
                    threshold=0.9,
+                   sigmoid_bound=False
                    ):
     #print(df_exp_optimum.columns)
     
+    # Get all values the model will be trained on for the independent variable
+    X_values_all = list(df_train[indep_var].values) + list(df_test[indep_var].values)
+    X_values_unique = np.unique(X_values_all)
+    #print(f"Unique values for {indep_var}: {X_values_unique}")
 
     # Initialize list to store metrics for each combination
     test_combination_metrics = []
@@ -79,6 +86,11 @@ def evaluate_split_custom(model, # Model to evaluate (class)
     X_train = scaler.fit_transform(X_train)
 
     model.clear_model()  # Clear the model to reset it
+
+    
+    if sigmoid_bound:
+        y_train = yield_to_unbounded(y_train)
+
     model.train(X_train, y_train)
 
     if constant_vars is not type(list):
@@ -100,9 +112,11 @@ def evaluate_split_custom(model, # Model to evaluate (class)
     for combination in unique_combinations:
         print(f"Evaluating combination: {combination}")
         
+        # Check if the optimum region exists for combination in df_exp_optimum
         if df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)].empty:
             print(f"No experimental optimum region found for this combination: {combination}. Skipping...")
             continue
+
 
         # Get the optimum region for the current combination of constant variables from df_exp_optimum
         combination_exp_row = df_exp_optimum.loc[df_exp_optimum[list(combination.keys())].eq(pd.Series(combination)).all(axis=1)]
@@ -134,22 +148,37 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         #print(X_test_subset[:, 0])
         scaler_min = X_test_subset[:, 0].min()
         scaler_max = X_test_subset[:, 0].max()
+        
         X_test_subset = scaler.transform(X_test_subset)
+        
         y_pred = model.predict(X_test_subset)
+
+        if sigmoid_bound:
+            y_pred = unbounded_to_yield(y_pred)
+        
         if len(y_pred.shape) == 2 and y_pred.shape[1] == 1:
             y_pred = y_pred.ravel()
 
+        # Standard metrics
         mae = mean_absolute_error(y_test_subset, y_pred)
         mse = mean_squared_error(y_test_subset, y_pred)
         r2score = r2_score(y_test_subset, y_pred)
 
-
-        X_pred_expanded, X_expanded_values = extend_x(df_test_subset, indep_var, id_var, dep_var)
-
-        y_pred_curve = model.predict(scaler.transform(X_pred_expanded))
-        X_interpolated_pred, y_interpolated_pred = interpolate_data(X_expanded_values, y_pred_curve, inter_step=iter_step)
+        if str(model) == 'MultiLayerPerceptron':
+            # Generate range for the independent variable
+            ind_min = df_test_subset[indep_var].min()
+            ind_max = df_test_subset[indep_var].max()
+            granular_values = np.arange(ind_min, ind_max + iter_step, iter_step)
+            
+            X_pred_expanded, X_interpolated_pred = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values)
+            y_interpolated_pred = model.predict(scaler.transform(X_pred_expanded)).ravel()
+        else:
+            X_pred_expanded, _ = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values = X_values_unique)
+            y_pred_curve = model.predict(scaler.transform(X_pred_expanded)).ravel()
+            X_interpolated_pred, y_interpolated_pred = interpolate_data(X_values_unique, y_pred_curve, inter_step=iter_step)
+        
         X_predmin, X_predmax = find_region(X_interpolated_pred, y_interpolated_pred, threshold=threshold)
-        X_predopt, y_predopt = find_optimum(X_expanded_values, y_pred_curve)
+        X_predopt, y_predopt = find_optimum(X_interpolated_pred, y_interpolated_pred)
 
         # Run custom metrics and append results
         accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region = run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=scaler_min, scaler_max=scaler_max)
@@ -169,7 +198,9 @@ def evaluate_split_custom(model, # Model to evaluate (class)
                                  'overlap': overlap,
                                  'recall': recall,
                                  'midpoint_in_true_region': midpoint_in_true_region,
-                                 'max_in_true_region': max_in_true_region}
+                                 'max_in_true_region': max_in_true_region,
+                                 'y_pred': y_interpolated_pred,
+                                 'X_pred': X_interpolated_pred,}
         
         test_combination_metrics.append(combination_metrics)          
 

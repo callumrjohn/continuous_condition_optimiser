@@ -10,8 +10,9 @@ model:
     output_units: 1
     optimizer: adam # only adam is supported currently
     learning_rate: 0.001
-    loss: mean_squared_error
-    epochs: 100
+    loss: huber
+    delta: 1.0
+    epochs: 50
     batch_size: 8
 
 output:

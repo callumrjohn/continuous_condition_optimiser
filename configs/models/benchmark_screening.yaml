@@ -1,6 +1,5 @@
 data:
   model_input_dir: data/model_input/
-  exp_optimum_csv_path: data/metrics/exp_optimum_regions.csv
 
 training:
   columns_to_remove:
@@ -10,15 +9,12 @@ training:
   
 validation:
   id_col: substrate_id
-  val_method: k_fold # Options: leave_one_out, k_fold
+  val_method: leave_one_out # Options: leave_one_out, k_fold
   indep_vars: tfa_equivalents
   dep_vars: yield
   constant_vars: 
     - substrate_id
     - reagent
-  standard: true
-  custom: false
-  sigmoid_bound: true
 
   # Parameters for k_fold validation
   cv_folds: 5
@@ -26,10 +22,7 @@ validation:
   random_state: 42
 
 metrics:
-  threshold: 0.9
-  iter_step: 0.1
   save: true
-  update_log: true
   
 model:
   model_dir: src/models/architectures/
@@ -39,8 +32,4 @@ logging:
   log_level: INFO
 
 output:
-  metrics_dir: outputs/metrics/validation_results/
-  output_model_dir: outputs/trained_models/
-  val_log_path: outputs/metrics/validation_log.csv
-
-
+  val_log_path: outputs/metrics/benchmark_screening.csv

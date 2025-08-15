@@ -8,12 +8,22 @@ class MLPModel:
         self.dropout_rate = kwargs.get("dropout_rate", 0.4)
         self.optimizer = kwargs.get("optimizer", "adam")
         self.learning_rate = kwargs.get("learning_rate", 0.001)
-        self.loss = kwargs.get("loss", "mean_squared_error")
+
+        loss_name = kwargs.get("loss", "mean_squared_error")
+        if loss_name == "huber":
+            delta = kwargs.get("delta", 1.0)
+            self.loss = tf.keras.losses.Huber(delta=delta)
+        else:
+            self.loss = loss_name
+        
         self.input_shape = kwargs.get("input_shape", (1,))
         self.output_units = kwargs.get("output_units", 1)
         self.epochs = kwargs.get("epochs", 100)
         self.batch_size = kwargs.get("batch_size", 8)
         self._build_model()
+
+    def __str__(self):
+        return "MultiLayerPerceptron"
 
     @property
     def model_params(self):

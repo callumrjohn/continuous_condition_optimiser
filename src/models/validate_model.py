@@ -7,10 +7,6 @@ from src.metrics.split_metrics import evaluate_split_standard, evaluate_split_cu
 
 def main():
 
-
-    # Select model and data, then load and initialise
-    model, df, model_name, dset_name  = select_model_and_data()
-
     # Load configuration files
     config_files = ["configs/base.yaml", "configs/models/validate_model.yaml"]
     cfg = load_config(config_files)
@@ -19,6 +15,13 @@ def main():
     update_log = cfg['metrics']['update_log']
     metrics_dir = cfg['output']['metrics_dir']
     val_method = cfg['validation']['val_method']
+
+    input_dir = cfg['data']['model_input_dir']
+
+    # Select model and data, then load and initialise
+    model, df, model_name, dset_name  = select_model_and_data(input_dir)
+
+    
 
     x_values, y_values = xy_split(df, cfg['validation']['id_col'], cfg['validation']['dep_vars'])
 
@@ -39,8 +42,8 @@ def main():
         from sklearn.model_selection import KFold
         shuffle = cfg['validation'].get('shuffle', True)
         random_state = cfg['validation'].get('random_state', 42)
-        splitter = KFold(n_splits=cfg['validation']['k_folds'], shuffle=shuffle, random_state=random_state)
-        print(f"Using K-Fold cross-validation with {cfg['validation']['k_folds']} folds for validation (change in config file validate_model.yaml).")
+        splitter = KFold(n_splits=cfg['validation']['cv_folds'], shuffle=shuffle, random_state=random_state)
+        print(f"Using K-Fold cross-validation with {cfg['validation']['cv_folds']} folds for validation (change in config file validate_model.yaml).")
     else:
         raise ValueError(f"Validation method {val_method} not supported. Use 'leave_one_out' or 'k_fold'.")
 
@@ -69,7 +72,8 @@ def main():
             df_test,
             df_exp_optimum if cfg['validation']['custom'] else None,
             iter_step=cfg['metrics']['iter_step'],
-            threshold=cfg['metrics']['threshold']
+            threshold=cfg['metrics']['threshold'],
+            sigmoid_bound=cfg['validation']['sigmoid_bound'] if 'sigmoid_bound' in cfg['metrics'] else False
         )
         # Add info about the split
         #print(type(split_metrics))
@@ -103,7 +107,7 @@ def main():
         if val_method == 'leave_one_out':
             metric_df_filename = f"{model_name}_{dset_name}_loo_{timestamp}.csv"
         elif val_method == 'k_fold':
-            metric_df_filename = f"{model_name}_{dset_name}_kfold{cfg['validation']['k_folds']}_{timestamp}.csv"
+            metric_df_filename = f"{model_name}_{dset_name}_kfold{cfg['validation']['cv_folds']}_{timestamp}.csv"
         
         metric_df_path = os.path.join(metrics_dir, metric_df_filename)
         #print(metric_df_path)
