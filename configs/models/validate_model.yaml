@@ -10,7 +10,7 @@ training:
   
 validation:
   id_col: substrate_id
-  val_method: k_fold # Options: leave_one_out, k_fold
+  val_method: leave_one_out # Options: leave_one_out, k_fold
   indep_vars: tfa_equivalents
   dep_vars: yield
   constant_vars: 
