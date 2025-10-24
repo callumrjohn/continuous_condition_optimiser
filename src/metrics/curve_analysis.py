@@ -5,6 +5,9 @@ import numpy as np
 def interpolate_data(X, y, inter_step = 0.1):
     
     #Sort the data points based on X values
+    X = np.array(X)
+    y = np.array(y)
+
     sort_idx = np.argsort(X)
     X = X[sort_idx]
     y = y[sort_idx]
