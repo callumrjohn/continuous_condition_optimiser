@@ -104,7 +104,7 @@ def test_one_hot_encode():
 
 #----------------- Test function for merging data with duplicate_selection = 'first'----------------
 def test_merge_data_first():
-    from src.preprocessing.merge_data import merge_dfs
+    from src.preprocessing.merge_data import gen_merge_dfs
 
 
     # Create mock DataFrames
@@ -133,7 +133,7 @@ def test_merge_data_first():
     ]
 
     # Merge the DataFrames
-    merged_df = merge_dfs(data, fingerprints, id_col='id', how='inner', desc_labels=None, duplicate_selection='first')
+    merged_df = gen_merge_dfs(data, fingerprints, id_col='id', how='inner', desc_labels=None, duplicate_selection='first')
 
     # Check the shape of the merged DataFrame
     assert merged_df.shape == (3, 10)
@@ -156,7 +156,7 @@ def test_merge_data_first():
 
 #----------------- Test function for merging data with duplicate_selection = 'last'----------------
 def test_merge_data_last():
-    from src.preprocessing.merge_data import merge_dfs
+    from src.preprocessing.merge_data import gen_merge_dfs
 
 
     # Create mock DataFrames
@@ -182,7 +182,7 @@ def test_merge_data_last():
     ]
 
     # Merge the DataFrames
-    merged_df = merge_dfs(data, fingerprints, id_col='id', how='inner', desc_labels=None, duplicate_selection='last')
+    merged_df = gen_merge_dfs(data, fingerprints, id_col='id', how='inner', desc_labels=None, duplicate_selection='last')
 
     # Check the shape of the merged DataFrame
     assert merged_df.shape == (3, 7)
