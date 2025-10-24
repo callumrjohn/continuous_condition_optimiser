@@ -17,7 +17,7 @@ validation:
     - substrate_id
     - reagent
   standard: true
-  custom: false
+  custom: true
   sigmoid_bound: true
 
   # Parameters for k_fold validation
