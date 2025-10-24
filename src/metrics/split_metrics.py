@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 from src.utils.data_utils import yield_to_unbounded, unbounded_to_yield
-from src.utils.model_utils import xy_split, extend_x
+from src.utils.model_utils import xy_split, extend_X
 from src.metrics.curve_analysis import interpolate_data, find_region, find_optimum
 from src.metrics.custom_metrics import region_accuracy, region_precision, region_overlap, region_recall, is_midpoint_in_true_region, is_max_in_true_region
 
@@ -170,10 +170,10 @@ def evaluate_split_custom(model, # Model to evaluate (class)
             ind_max = df_test_subset[indep_var].max()
             granular_values = np.arange(ind_min, ind_max + iter_step, iter_step)
             
-            X_pred_expanded, X_interpolated_pred = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values)
+            X_pred_expanded, X_interpolated_pred = extend_X(df_test_subset, indep_var, id_var, dep_var, granular_values)
             y_interpolated_pred = model.predict(scaler.transform(X_pred_expanded)).ravel()
         else:
-            X_pred_expanded, _ = extend_x(df_test_subset, indep_var, id_var, dep_var, granular_values = X_values_unique)
+            X_pred_expanded, _ = extend_X(df_test_subset, indep_var, id_var, dep_var, granular_values = X_values_unique)
             y_pred_curve = model.predict(scaler.transform(X_pred_expanded)).ravel()
             X_interpolated_pred, y_interpolated_pred = interpolate_data(X_values_unique, y_pred_curve, inter_step=iter_step)
         

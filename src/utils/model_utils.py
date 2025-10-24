@@ -92,7 +92,7 @@ def xy_split(df, remove_columns, target_columns):
     y = df[target_columns] # if len(target_columns) > 1 else df[target_columns[0]]
     return X.values, y.values
 
-def extend_x(df, ind_var, remove_columns, target_columns, granular_values):
+def extend_X(df, ind_var, remove_columns, target_columns, granular_values):
     if isinstance(remove_columns, str):
         remove_columns = [remove_columns]
     if isinstance(target_columns, str):

@@ -34,8 +34,8 @@ def test_xy_split():
     assert np.array_equal(X, expected_X)
     assert np.array_equal(y, expected_y)
 
-def test_extend_x():
-    from src.utils.model_utils import extend_x
+def test_extend_X():
+    from src.utils.model_utils import extend_X
 
     # Create a mock DataFrame
     df = pd.DataFrame({
@@ -51,10 +51,10 @@ def test_extend_x():
     remove_columns = ['id']
     target_columns = 'target'
     # Extend the DataFrame
-    X_extended, X_extended_values = extend_x(df, ind_var, remove_columns, target_columns, step=0.1)
+    X_extended, X_extended_values = extend_X(df, ind_var, remove_columns, target_columns, np.arange(0, 4, 0.1))
     # Check the shape of the extended DataFrame
     assert X_extended[:, 3].tolist() == np.arange(0, 4, 0.1).tolist()
-    assert X_extended_values == np.arange(0, 4, 0.1).tolist()
+    assert X_extended_values.tolist() == np.arange(0, 4, 0.1).tolist()
     assert len(set(X_extended[:, 2])) == 1
     assert X_extended.shape == (40, 4)
     
