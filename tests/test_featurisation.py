@@ -90,7 +90,7 @@ def test_gen_mordred_descriptors():
 #----------------- Test function for generating custom fingerprints ---------------
 
 def test_get_custom_descriptors():
-    from src.featurisation.custom_gen import gen_custom_descriptors
+    from src.featurisation.custom_gen import get_custom_descriptors
     # Mock data
     df = pd.DataFrame({
         "id": ['Caffeine',
@@ -128,7 +128,7 @@ def test_get_custom_descriptors():
                                        'has_alkene', 'has_alkyne', 'has_tertiary_alcohol',
                                        'has_glycosamine', 'has_glycoside'])
     for smiles in df['smiles']:
-        custom_features = gen_custom_descriptors(smiles)
+        custom_features = get_custom_descriptors(smiles)
         new_row = pd.DataFrame([{'smiles': smiles, **custom_features}])
         descriptors = pd.concat([descriptors, new_row], ignore_index=True)
     
