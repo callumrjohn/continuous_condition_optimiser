@@ -42,7 +42,7 @@ def select_fingerprints_tkinter(fingerprint_names):
     root.title("Select and Order Fingerprints")
     tk.Label(root, text="Select fingerprints to use and priority (Ctrl+Click for multiple, reorder with Up/Down):").pack(anchor="w")
     items = list(fingerprint_names)
-    listbox = tk.Listbox(root, selectmode=tk.EXTENDED, width=40)
+    listbox = tk.Listbox(root, selectmode=tk.EXTENDED, width=80)
     update_listbox()
     listbox.pack()
 

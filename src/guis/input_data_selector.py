@@ -8,7 +8,7 @@ def select_input_data_tkinter(data_names):
 
     dataset_var = tk.StringVar(value=data_names[0] if data_names else "")
 
-    dataset_listbox = tk.Listbox(root, listvariable=tk.StringVar(value=data_names), height=10, exportselection=False)
+    dataset_listbox = tk.Listbox(root, listvariable=tk.StringVar(value=data_names), height=10, width=30, exportselection=False)
     dataset_listbox.grid(row=1, column=0, padx=10, pady=5)
     dataset_listbox.selection_set(0)
 

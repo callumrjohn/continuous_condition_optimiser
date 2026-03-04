@@ -1,4 +1,3 @@
-import sys
 import tkinter as tk
 
 def select_data_models_tkinter(data_names, model_names):
@@ -11,11 +10,11 @@ def select_data_models_tkinter(data_names, model_names):
     dataset_var = tk.StringVar(value=data_names[0] if data_names else "")
     model_var = tk.StringVar(value=model_names[0] if model_names else "")
 
-    dataset_listbox = tk.Listbox(root, listvariable=tk.StringVar(value=data_names), height=10, exportselection=False)
+    dataset_listbox = tk.Listbox(root, listvariable=tk.StringVar(value=data_names), height=10, width=100, exportselection=False)
     dataset_listbox.grid(row=1, column=0, padx=10, pady=5)
     dataset_listbox.selection_set(0)
 
-    model_listbox = tk.Listbox(root, listvariable=tk.StringVar(value=model_names), height=10, exportselection=False)
+    model_listbox = tk.Listbox(root, listvariable=tk.StringVar(value=model_names), height=10, width=30, exportselection=False)
     model_listbox.grid(row=1, column=1, padx=10, pady=5)
     model_listbox.selection_set(0)
 
