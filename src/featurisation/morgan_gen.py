@@ -15,16 +15,18 @@ def gen_morgan_fps(df, smiles_col, id_col, radius=2, nBits=2048):
         mol = Chem.MolFromSmiles(row[smiles_col])
         if mol is None:
             failed.append(row[id_col])
-            fps.append([np.nan] * nBits)
+            fps.append(np.full(nBits, np.nan, dtype=float))
             continue
+        
+        # Generate fingerprint and convert to ExplicitBitVect for safer conversion
         fp = mfpgen.GetFingerprint(mol)
-        fp_arr = np.zeros((nBits,), dtype=int)
-        AllChem.DataStructs.ConvertToNumpyArray(fp, fp_arr)
-        fps.append(fp_arr)
+        # Use explicit bit vector conversion which is more stable than ConvertToNumpyArray
+        fp_list = list(fp)
+        fps.append(np.array(fp_list, dtype=int))
 
-    # Assemble DataFrame
+    # Assemble DataFrame with consistent data types
     fp_df = pd.DataFrame(fps, columns=[f'bit_{i}' for i in range(nBits)])
-    fp_df[id_col] = df[id_col]
+    fp_df[id_col] = df[id_col].values
 
     # Reorder columns
     cols = [id_col] + [f'bit_{i}' for i in range(nBits)]
