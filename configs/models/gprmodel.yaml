@@ -1,0 +1,17 @@
+# configs/models/model_gpr.yaml
+
+model:
+  type: gpr
+  model_dir: src/models/architectures/
+  model_config_dir: configs/models/
+  parameters:
+    kernel: rbf # rbf, matern (state nu value), rationalquadratic, constant supported
+    white_kernel: true
+    alpha: 1.0
+    n_restarts_optimizer: 0
+    gamma: scale # or "auto" — 'scale' is usually better
+
+  
+output:
+  model_path: outputs/trained_models/gpr_model.pkl
+  metrics_path: outputs/model_metrics/gpr_metrics.json
