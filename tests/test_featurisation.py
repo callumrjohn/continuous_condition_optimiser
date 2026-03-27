@@ -214,15 +214,16 @@ def test_get_abs_minmax_df():
     atom_df = pd.DataFrame({
         "substrate_id": ['Caffeine', 'Lamivudine'],
         "1": [[1.0, 2.0], [3.0, 4.0]],
-        "2": [[5.0, 6.0], [7.0, 8.0]],
-        "3": [9.0, 12.0],
+        "2": [(5.0, 6.0), (7.0, 8.0)],
+        "3": [[9.0], [12.0]],
+        "4": [1, 5]
     })
     
     id_col = 'substrate_id'
     
     abs_minmax_df = get_abs_minmax_df(atom_df, id_col=id_col)
 
-    assert abs_minmax_df.shape[1] == 5  # Should have substrate_id and min/max for each column
+    assert abs_minmax_df.shape[1] == 9  # Should have substrate_id and min/max for each column
 
     assert abs_minmax_df["substrate_id"].tolist() == ['Caffeine', 'Lamivudine']
     assert abs_minmax_df["1_min"].tolist() == [1.0, 3.0]
@@ -231,3 +232,5 @@ def test_get_abs_minmax_df():
     assert abs_minmax_df["2_max"].tolist() == [6.0, 8.0]
     assert abs_minmax_df["3_min"].tolist() == [9.0, 12.0]
     assert abs_minmax_df["3_max"].tolist() == [9.0, 12.0]
+    assert abs_minmax_df["4_min"].tolist() == [1, 5]
+    assert abs_minmax_df["4_max"].tolist() == [1, 5]

@@ -93,14 +93,25 @@ def get_abs_minmax_df(atom_df, id_col='substrate_id'):
     """
     Generate a DataFrame with the absolute min and max values for each descriptor across all atoms.
     """
+    def _as_list(value):
+        if isinstance(value, list):
+            return value
+        if isinstance(value, tuple):
+            return list(value)
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        if pd.isna(value):
+            return [np.nan]
+        return [value]
+
     min_values = {}
     max_values = {}
 
     for col in atom_df.columns:
         if col == id_col:
             continue
-        min_values[f'{col}_min'] = atom_df[col].apply(lambda x: min(x)).tolist()
-        max_values[f'{col}_max'] = atom_df[col].apply(lambda x: max(x)).tolist()
+        min_values[f'{col}_min'] = atom_df[col].apply(lambda x: min(_as_list(x))).tolist()
+        max_values[f'{col}_max'] = atom_df[col].apply(lambda x: max(_as_list(x))).tolist()
 
     abs_minmax_df = pd.DataFrame({**min_values, **max_values})
     abs_minmax_df = pd.concat([atom_df[[id_col]], abs_minmax_df], axis=1)
