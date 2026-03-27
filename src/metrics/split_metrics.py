@@ -164,18 +164,22 @@ def evaluate_split_custom(model, # Model to evaluate (class)
         mse = mean_squared_error(y_test_subset, y_pred)
         r2score = r2_score(y_test_subset, y_pred)
 
+        ind_min = df_test_subset[indep_var].min()
+        ind_max = df_test_subset[indep_var].max()
+
         if str(model) == 'MultiLayerPerceptron':
             # Generate range for the independent variable
-            ind_min = df_test_subset[indep_var].min()
-            ind_max = df_test_subset[indep_var].max()
+            
             granular_values = np.arange(ind_min, ind_max + iter_step, iter_step)
             
             X_pred_expanded, X_interpolated_pred = extend_X(df_test_subset, indep_var, id_var, dep_var, granular_values)
             y_interpolated_pred = model.predict(scaler.transform(X_pred_expanded)).ravel()
         else:
-            X_pred_expanded, _ = extend_X(df_test_subset, indep_var, id_var, dep_var, granular_values = X_values_unique)
+            granular_values = X_values_unique[(X_values_unique >= ind_min) & (X_values_unique <= ind_max)]
+
+            X_pred_expanded, _ = extend_X(df_test_subset, indep_var, id_var, dep_var, granular_values = granular_values)    
             y_pred_curve = model.predict(scaler.transform(X_pred_expanded)).ravel()
-            X_interpolated_pred, y_interpolated_pred = interpolate_data(X_values_unique, y_pred_curve, inter_step=iter_step)
+            X_interpolated_pred, y_interpolated_pred = interpolate_data(granular_values, y_pred_curve, inter_step=iter_step)
         
         X_predmin, X_predmax = find_region(X_interpolated_pred, y_interpolated_pred, threshold=threshold)
         X_predopt, y_predopt = find_optimum(X_interpolated_pred, y_interpolated_pred)
