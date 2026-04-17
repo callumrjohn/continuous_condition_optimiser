@@ -6,7 +6,16 @@ from sklearn.model_selection import KFold
 from src.metrics.split_metrics import evaluate_split_standard
 
 def main():
-
+    """
+    Main entry point for benchmarking multiple models using k-fold cross-validation.
+    
+    Performs quick k-fold cross-validation screening on a selected model and dataset
+    to evaluate standard regression metrics (MAE, MSE, R²). Useful for rapidly
+    comparing different model architectures and feature combinations.
+    
+    Returns:
+        None (prints metrics to console)
+    """
     config_files = ["configs/base.yaml", "configs/models/benchmark_screening.yaml"]
     cfg = load_config(config_files)
 

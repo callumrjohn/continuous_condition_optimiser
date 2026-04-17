@@ -61,8 +61,29 @@ def has_glycoside(mol):
 
 
 def get_custom_descriptors(smiles):
-    """Generate custom features based on specific moieties in the SMILES strings."""
-
+    """
+    Generate binary features indicating presence of specific chemical functional groups.
+    
+    Analyzes a molecule for the presence of 10 predefined functional groups related to
+    reactivity and chemical compatibility. Returns a dictionary of boolean values
+    indicating which functional groups are present.
+    
+    Args:
+        smiles : str
+            SMILES string representing the molecule to analyze
+    
+    Returns:
+        dict or None
+            Dictionary with 10 boolean keys:
+            'has_thiol', 'has_thioether', 'has_thioester', 'has_thiocarboxylic_acid',
+            'has_sulfoxide', 'has_alkene', 'has_alkyne', 'has_tertiary_alcohol',
+            'has_glycosamine', 'has_glycoside'
+            Returns None if SMILES parsing fails.
+    
+    Notes:
+        Invalid SMILES strings print a warning and return None. Functional groups
+        are detected using SMARTS pattern matching with RDKit.
+    """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         print(f"Invalid SMILES string: {smiles}")
@@ -88,8 +109,32 @@ def get_custom_descriptors(smiles):
 
 
 def gen_custom_descriptors(df, smiles_col, id_col):
-    """Generate custom descriptors for a DataFrame of SMILES strings."""
+    """
+    Generate binary custom feature DataFrame from SMILES strings for multiple molecules.
     
+    Applies get_custom_descriptors() to each SMILES string in the DataFrame,
+    collecting binary indicator features for 10 functional groups. Handles invalid
+    SMILES gracefully and tracks failed molecules.
+    
+    Args:
+        df : pd.DataFrame
+            Input DataFrame containing SMILES strings and molecule identifiers
+        smiles_col : str
+            Name of the column containing SMILES strings
+        id_col : str
+            Name of the column containing molecule identifiers
+    
+    Returns:
+        tuple
+            - desc_df (pd.DataFrame): DataFrame with binary custom descriptor columns
+              plus id_col. Each row represents one molecule. Columns ordered as
+              [id_col, 'has_thiol', 'has_thioether', ...] etc.
+            - failed (list): List of molecule IDs for which SMILES parsing failed
+    
+    Notes:
+        Empty descriptor dictionaries are added for molecules with invalid SMILES,
+        which may result in all-False values for those rows.
+    """
     descriptors = []
     failed = []
 
@@ -115,6 +160,26 @@ def gen_custom_descriptors(df, smiles_col, id_col):
 
 
 def main():
+    """
+    Generate custom binary descriptors from input SMILES file and save to CSV.
+    
+    Loads configuration from YAML files, reads SMILES data from input CSV,
+    generates custom binary descriptors (encoding presence/absence of specific
+    chemical functionalities) using gen_custom_descriptors(), and saves the
+    resulting feature matrix to the specified output path.
+    
+    Configuration is loaded from 'configs/base.yaml' and 'configs/featurisation/custom.yaml'
+    which specify input/output paths and SMILES/ID column names.
+    
+    The custom descriptors check for the presence of functional groups including:
+    thiols, thioethers, thioesters, thiocarboxylic acids, sulfoxides, alkenes,
+    alkynes, tertiary alcohols, glycosamines, and glycosides.
+    
+    Returns:
+        None
+        Outputs a CSV file with custom binary descriptors and prints the output path.
+        Also warns about any molecules with invalid SMILES strings.
+    """
     config_files = ["configs/base.yaml", "configs/featurisation/custom.yaml"]
     cfg = load_config(config_files)
 

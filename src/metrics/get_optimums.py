@@ -6,6 +6,43 @@ from src.metrics.curve_analysis import interpolate_data, find_region, find_optim
 
 
 def main():
+    """
+    Extract experimental optimum regions from raw experimental yield data.
+    
+    Orchestrates the identification of optimal experimental conditions by analyzing
+    yield curves for each unique combination of experimental variables. Loads configuration
+    from YAML files, melts experimental data into long format if needed, identifies
+    high-performing regions using threshold-based curve analysis, and saves results
+    to CSV for use in model evaluation metrics.
+    
+    Configuration keys (from configs/metrics/get_optimums.yaml):
+        - data.yield_path: Path to input experimental data CSV
+        - metrics.output_path: Path to save optimum regions CSV
+        - metrics.threshold: Yield threshold (0-1) for defining high-performing region
+        - metrics.iter_step: Step size for interpolating yield curves
+        - metrics.success_cutoff: Minimum yield value to process combination
+        - preprocessing.id_vars: List of columns defining experiment combinations
+        - preprocessing.melt: Whether to reshape data from wide to long format
+        - preprocessing.var_name: Column name for varying experimental conditions
+        - preprocessing.value_name: Column name for yield response values
+        - preprocessing.drop_nan: Whether to remove NaN values before analysis
+    
+    Returns:
+        None
+        Saves results to CSV with columns:
+        - All id_vars columns (e.g., Substrate, Reagent, etc.)
+        - 'opt_Xmin': Minimum boundary of high-yielding region
+        - 'opt_Xmax': Maximum boundary of high-yielding region
+        - 'opt_X': Independent variable value at experimental optimum
+        - 'opt_y': Experimental yield value at optimum
+    
+    Notes:
+        - Combinations where all experiments yield < success_cutoff are skipped
+        - Interpolation uses linear interpolation at iter_step intervals
+        - High-performing region is defined as all points >= threshold * max(yield)
+        - Used as reference for comparing model predictions against true optima
+        - This data is required for the custom metrics evaluation in evaluate_split_custom()
+    """
     
     config_files = ["configs/base.yaml", "configs/metrics/get_optimums.yaml"]
     cfg = load_config(config_files)

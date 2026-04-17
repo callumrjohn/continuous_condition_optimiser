@@ -9,10 +9,44 @@ from src.metrics.curve_analysis import interpolate_data, find_region, find_optim
 from src.metrics.custom_metrics import region_accuracy, region_precision, region_overlap, region_recall, is_midpoint_in_true_region, is_max_in_true_region
 
 
-# RUN THEM ALL TOGETHER
 def run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=0, scaler_max=25):
     """
-    Calculate custom metrics for the predicted high yielding region.
+    Calculate region-based custom metrics comparing predicted and experimental optimum regions.
+    
+    Computes six custom metrics that evaluate the model's ability to correctly identify
+    the high-yielding experimental region by comparing predicted region boundaries with
+    experimental optimum region boundaries.
+    
+    Args:
+        Xmin : float
+            Minimum boundary of experimental optimum region
+        Xmax : float
+            Maximum boundary of experimental optimum region
+        X_predmax : float
+            Maximum boundary of predicted optimum region
+        X_predmin : float
+            Minimum boundary of predicted optimum region
+        X_predopt : float
+            Independent variable value at predicted optimum
+        scaler_min : float, optional
+            Minimum value in observed data range (default: 0)
+        scaler_max : float, optional
+            Maximum value in observed data range (default: 25)
+    
+    Returns:
+        tuple
+            Six-element tuple containing:
+            - accuracy (float): Fraction of experimental region correctly predicted
+            - precision (float): Fraction of predicted region within experimental region
+            - overlap (float): Overlap between regions as fraction of union
+            - recall (float): Sensitivity of prediction to experimental region
+            - midpoint_in_true_region (bool): Whether predicted optimum midpoint is in true region
+            - max_in_true_region (bool): Whether predicted optimum maximum is in true region
+    
+    Notes:
+        All metrics scale the regions to [scaler_min, scaler_max] range for comparison.
+        Region accuracy measures what fraction of the true region was predicted.
+        Precision measures what fraction of predicted region is correct.
     """
     accuracy = region_accuracy(Xmin, Xmax, X_predmax, X_predmin, scaler_min=scaler_min, scaler_max=scaler_max)
     precision = region_precision(Xmin, Xmax, X_predmax, X_predmin, scaler_min=scaler_min, scaler_max=scaler_max)
@@ -23,13 +57,46 @@ def run_custom_metrics(Xmin, Xmax, X_predmax, X_predmin, X_predopt, scaler_min=0
 
     return accuracy, precision, overlap, recall, midpoint_in_true_region, max_in_true_region
 
-# Calcuate metrics for a test/train slit using standard metrics
+
 def evaluate_split_standard(model,
                    id_var,
                    dep_vars,
                    train_df,
                    test_df,
                    sigmoid_bound=False):
+    """
+    Evaluate model performance on a train/test split using standard regression metrics.
+    
+    Trains a model on the training set and computes standard regression metrics
+    (MSE, MAE, R²) on the test set. Includes optional yield transformation using
+    sigmoid bounding for models that predict on unbounded scale.
+    
+    Args:
+        model : Model class
+            Model instance with train() and predict() methods
+        id_var : str
+            Column name containing sample identifiers to remove before training
+        dep_vars : str or list
+            Column name(s) of dependent variables (targets) to predict
+        train_df : pd.DataFrame
+            Training data DataFrame
+        test_df : pd.DataFrame
+            Test data DataFrame
+        sigmoid_bound : bool, optional
+            If True, applies logit transformation to y_train and inverse logit
+            to y_pred to bound predictions to [0, 100] (default: False)
+    
+    Returns:
+        dict
+            Dictionary with keys:
+            - 'mae': Mean Absolute Error
+            - 'mse': Mean Squared Error
+            - 'r2score': R² score
+    
+    Notes:
+        Features are standardized using StandardScaler. The model is trained once
+        and evaluated on the test set.
+    """
     X_train, y_train = xy_split(train_df, id_var, dep_vars)
     X_test, y_test = xy_split(test_df, id_var, dep_vars)
 
@@ -56,19 +123,80 @@ def evaluate_split_standard(model,
     return {'mae': mae, 'mse': mse, 'r2score': r2score}
 
 
-# Calculate metrics for a test/train slit using custom metrics. Return as a DataFrame
-def evaluate_split_custom(model, # Model to evaluate (class)
-                   id_var, # ID variable to split on (eg Substrate)
-                   dep_var, # Dependent variable to predict (eg Yield, conversion) - there can only be one...
-                   indep_var, # Independent variable to preduct (eg Temperature, pH, acid equivalents, etc) - there can only be one...
-                   constant_vars, # Constant variables used in the experiment
-                   df_train, # DataFrame of training data
-                   df_test, # DataFrame of test data
-                   df_exp_optimum, # DataFrame of experimental optimum regions (non-encoded) - Generated using get_optimums.py
+def evaluate_split_custom(model,
+                   id_var,
+                   dep_var,
+                   indep_var,
+                   constant_vars,
+                   df_train,
+                   df_test,
+                   df_exp_optimum,
                    iter_step=0.1,
                    threshold=0.9,
                    sigmoid_bound=False
                    ):
+    """
+    Evaluate model performance on a train/test split using custom region-based metrics.
+    
+    Trains a model on the training set and evaluates performance using custom metrics
+    that measure the model's ability to predict high-yielding reaction regions. Generates
+    predictions across all unique combinations of constant experimental variables in the
+    test set, identifies predicted regions using threshold-based analysis, and compares
+    with experimental optimum regions to compute region accuracy, precision, recall, and
+    overlap metrics.
+    
+    Args:
+        model : Model class
+            Model instance with train(), predict(), and clear_model() methods
+        id_var : str
+            Column name for grouping variable (e.g., 'Substrate')
+        dep_var : str
+            Column name for dependent variable to predict (e.g., 'Yield')
+        indep_var : str
+            Column name for independent variable to vary predictions across (e.g., 'Temperature')
+        constant_vars : list
+            List of column names for constant experimental variables
+        df_train : pd.DataFrame
+            Training data DataFrame
+        df_test : pd.DataFrame
+            Test data DataFrame
+        df_exp_optimum : pd.DataFrame
+            Experimental optimum regions DataFrame with columns for each constant variable,
+            id_var, and 'opt_Xmin', 'opt_Xmax' containing experimental region boundaries
+        iter_step : float, optional
+            Step size for interpolating predicted response curves (default: 0.1)
+        threshold : float, optional
+            Threshold (0-1) for identifying high-yielding predicted regions (default: 0.9)
+        sigmoid_bound : bool, optional
+            If True, applies yield transformations to bound predictions (default: False)
+    
+    Returns:
+        pd.DataFrame
+            DataFrame with one row per unique combination of constant variables and id_var
+            containing columns:
+            - All constant variables and id_var columns
+            - 'mae', 'mse', 'r2score': Standard regression metrics
+            - 'Xmin', 'Xmax': Experimental region boundaries
+            - 'X_predmin', 'X_predmax': Predicted region boundaries
+            - 'X_predopt': Independent variable value at predicted optimum
+            - 'y_predopt': Predicted response value at optimum
+            - 'accuracy': Fraction of experimental region correctly predicted
+            - 'precision': Fraction of predicted region within experimental region
+            - 'overlap': Overlap between predicted and experimental regions
+            - 'recall': Fraction of experimental region correctly identified
+            - 'midpoint_in_true_region': Boolean, whether predicted midpoint is in true region
+            - 'max_in_true_region': Boolean, whether predicted optimum is in true region
+            - 'X_pred': Interpolated independent variable values for predicted curve
+            - 'y_pred': Predicted response values at interpolated points
+    
+    Notes:
+        - Features are standardized using StandardScaler
+        - One-hot encoded categorical variables are automatically detected
+        - MLP models use interpolated predictions within indep_var range
+        - Tree-based models use existing unique values or interpolation as fallback
+        - Custom metrics are calculated using region_accuracy, region_precision, 
+          region_recall, and region_overlap functions for each combination
+    """
     #print(df_exp_optimum.columns)
     
     # Get all values the model will be trained on for the independent variable

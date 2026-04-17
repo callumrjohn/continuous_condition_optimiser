@@ -6,7 +6,17 @@ from src.metrics.split_metrics import evaluate_split_standard, evaluate_split_cu
 
 
 def main():
-
+    """
+    Main entry point for model validation with cross-validation and custom metrics.
+    
+    Performs cross-validation (leave-one-out or k-fold) on a selected model using
+    a selected dataset. Evaluates model performance using standard metrics (MSE, MAE, R²)
+    and optionally custom metrics based on experimental optimum regions. Saves detailed
+    validation results and updates a validation log file.
+    
+    Returns:
+        None (saves validation metrics to CSV files and updates validation log)
+    """
     # Load configuration files
     config_files = ["configs/base.yaml", "configs/models/validate_model.yaml"]
     cfg = load_config(config_files)

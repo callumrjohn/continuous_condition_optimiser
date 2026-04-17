@@ -1,0 +1,13 @@
+name: mordred-featurisation
+channels:
+  - rdkit
+  - mordred-descriptor
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - rdkit
+  - mordred
+  - numpy=1.23
+  - networkx=2.3
+  - pyyaml

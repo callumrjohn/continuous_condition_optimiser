@@ -6,6 +6,32 @@ from src.utils.config import load_config
 
 
 def gen_morgan_fps(df, smiles_col, id_col, radius=2, nBits=2048):
+    """
+    Generate Morgan fingerprints for molecules from SMILES strings.
+    
+    Args:
+        df : pd.DataFrame
+            Input DataFrame containing SMILES strings and molecule identifiers
+        smiles_col : str
+            Name of the column containing SMILES strings
+        id_col : str
+            Name of the column containing molecule identifiers
+        radius : int, optional
+            Radius of the Morgan fingerprint (default: 2)
+        nBits : int, optional
+            Number of bits in the fingerprint (default: 2048)
+    
+    Returns:
+        tuple
+            - fp_df (pd.DataFrame): DataFrame with Morgan fingerprint bits where the first
+              column is id_col followed by 'bit_0' through 'bit_{nBits-1}' columns
+            - failed (list): List of molecule IDs for which SMILES parsing failed
+    
+    Notes:
+        Molecules with invalid SMILES strings have all fingerprint bits set to NaN.
+        The fingerprint is converted to an integer numpy array where each element is
+        either 0, 1, or NaN.
+    """
     mfpgen = rdFingerprintGenerator.GetMorganGenerator(radius=radius, fpSize=nBits)
 
     fps = []
@@ -34,6 +60,21 @@ def gen_morgan_fps(df, smiles_col, id_col, radius=2, nBits=2048):
 
 
 def main():
+    """
+    Generate Morgan fingerprints from input SMILES file and save to CSV.
+    
+    Loads configuration from YAML files, reads SMILES data from input CSV,
+    generates Morgan fingerprints using gen_morgan_fps(), and saves the resulting
+    fingerprint matrix to the specified output path. Issues warnings for any
+    molecules with invalid SMILES strings.
+    
+    Configuration is loaded from 'configs/base.yaml' and 'configs/featurisation/morgan.yaml'
+    which specify input/output paths and fingerprint parameters (radius and nBits).
+    
+    Returns:
+        None
+        Outputs a CSV file with Morgan fingerprints and prints the output path.
+    """
     config_files = ["configs/base.yaml", "configs/featurisation/morgan.yaml"]
     cfg = load_config(config_files)
 

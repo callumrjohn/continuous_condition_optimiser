@@ -6,6 +6,31 @@ from src.utils.config import load_config
 
 
 def gen_rdkit_descriptors(df, smiles_col, id_col, missingVal=np.nan, silent=True):
+    """
+    Generate RDKit molecular descriptors for molecules from SMILES strings.
+
+    Args:
+        df : pd.DataFrame
+            Input DataFrame containing SMILES strings and molecule identifiers
+        smiles_col : str
+            Name of the column containing SMILES strings
+        id_col : str
+            Name of the column containing molecule identifiers
+        missingVal : float, optional
+            Value to use for invalid SMILES or missing descriptors (default: np.nan)
+        silent : bool, optional
+            If True, suppress RDKit warnings (default: True)
+    
+    Returns:
+        pd.DataFrame
+            DataFrame with computed RDKit descriptors where the first column is id_col,
+            followed by all descriptor columns. Shape is (n_molecules, n_descriptors + 1)
+    
+    Notes:
+        Invalid SMILES strings are handled gracefully by assigning the missingVal to all
+        descriptors for that molecule. The output DataFrame maintains the same row order
+        as the input DataFrame.
+    """
     desc_names = [desc[0] for desc in Descriptors._descList]
     rdk_disc = []
     for _, row in df.iterrows():
@@ -27,6 +52,20 @@ def gen_rdkit_descriptors(df, smiles_col, id_col, missingVal=np.nan, silent=True
 
 
 def main():
+    """
+    Generate RDKit descriptors from input SMILES file and save to CSV.
+    
+    Loads configuration from YAML files, reads SMILES data from input CSV,
+    generates RDKit descriptors using gen_rdkit_descriptors(), and saves
+    the resulting feature matrix to the specified output path.
+    
+    Configuration is loaded from 'configs/base.yaml' and 'configs/featurisation/rdkit.yaml'
+    which specify input/output paths and descriptor generation parameters.
+    
+    Returns:
+        None
+        Outputs a CSV file with RDKit descriptors and prints the output path.
+    """
     
     # Load configs
     config_files = ["configs/base.yaml", "configs/featurisation/rdkit.yaml"]

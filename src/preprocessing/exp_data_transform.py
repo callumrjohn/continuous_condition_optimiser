@@ -5,7 +5,16 @@ from src.preprocessing.encode import one_hot_encode
 
 
 def main():
-
+    """
+    Main entry point for experimental data transformation preprocessing.
+    
+    Loads configuration and applies melting (unpivoting) and/or one-hot encoding
+    to transform raw experimental yield data into machine learning-ready format.
+    Saves the transformed dataset to a CSV file.
+    
+    Returns:
+        None (saves transformed DataFrame to CSV file)
+    """
     # Load configs
     config_files = ["configs/base.yaml", "configs/preprocessing/exp_data_transform.yaml"]
     cfg = load_config(config_files)

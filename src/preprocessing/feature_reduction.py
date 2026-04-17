@@ -8,6 +8,22 @@ from src.utils.model_utils import select_input_data
 from sklearn.utils import resample
 
 def pca_reduce_dataframe(df, id_col, target_cols, n_components):
+    """
+    Reduce DataFrame dimensionality using Principal Component Analysis (PCA).
+    
+    Applies PCA to compress features while preserving maximum variance. Returns
+    DataFrame with principal components plus ID and target columns.
+    
+    Args:
+        df: Input DataFrame
+        id_col: Column name for unique identifiers
+        target_cols: List of target variable column names
+        n_components: Number of principal components to keep
+    
+    Returns:
+        DataFrame with PCA-reduced features plus id_col and target columns.
+        Columns ordered as: [id_col, target_cols, PC1, PC2, ...]
+    """
     # Separate features, id, and targets
     feature_cols = [col for col in df.columns if col not in ([id_col] + target_cols)]
     X = df[feature_cols].values
@@ -33,6 +49,30 @@ def pca_reduce_dataframe(df, id_col, target_cols, n_components):
 
 
 def rfe_reduce_dataframe(df, id_col, target_cols, n_features_to_select, cv=5, step=10):
+    """
+    Reduce DataFrame features using Recursive Feature Elimination (RFE).
+    
+    Selects the most important features for the target variable using RFE with
+    a RandomForest estimator. Can use cross-validation to automatically determine
+    optimal number of features (if n_features_to_select='auto').
+    
+    Args:
+        df: Input DataFrame
+        id_col: Column name for unique identifiers
+        target_cols: List of target variable column names (typically single element)
+        n_features_to_select: Number of features to select. Can be:
+            - Integer: exact number of features to select
+            - 'auto': use RFECV to find optimal number using cross-validation
+        cv: Number of cross-validation folds for RFECV (default: 5)
+        step: Number of features to remove at each iteration (default: 10)
+    
+    Returns:
+        DataFrame with selected features plus id_col and target columns.
+        Columns ordered as: [id_col, target_cols, selected_features]
+    
+    Raises:
+        ValueError: If n_features_to_select is not 'auto' or an integer
+    """
     # Separate features, id, and targets
     feature_cols = [col for col in df.columns if col not in ([id_col] + target_cols)]
     X = df[feature_cols].values
@@ -69,6 +109,29 @@ def rfe_reduce_dataframe_bootstrap(
     df, id_col, target_cols, n_features_to_select, 
     n_bootstraps=10, step=10, random_state=42
 ):
+    """
+    Reduce DataFrame features using bootstrapped Recursive Feature Elimination (RFE).
+    
+    Performs RFE multiple times on bootstrap samples of the data and selects features
+    based on average ranking across all bootstrap iterations.
+    
+    Args:
+        df: Input DataFrame
+        id_col: Column name for unique identifiers
+        target_cols: List of target variable column names (typically single element)
+        n_features_to_select: Number of features to select
+        n_bootstraps: Number of bootstrap samples to generate (default: 10)
+        step: Number of features to remove at each RFE iteration (default: 10)
+        random_state: Random seed for reproducible bootstrap sampling (default: 42)
+    
+    Returns:
+        DataFrame with selected features plus id_col and target columns.
+        Columns ordered as: [id_col, target_cols, selected_features]
+    
+    Notes:
+        - Each bootstrap iteration uses a different random_state (random_state + i)
+        - Features are ranked by average rank across all bootstraps
+    """
     # Separate features, id, and targets
     feature_cols = [col for col in df.columns if col not in ([id_col] + target_cols)]
     X = df[feature_cols].values
@@ -111,6 +174,16 @@ def rfe_reduce_dataframe_bootstrap(
 
 
 def main():
+    """
+    Main entry point for feature reduction preprocessing workflow.
+    
+    Loads configuration, prompts user to select input data, and applies either
+    RFE or bootstrapped RFE for feature selection. Saves the reduced dataset
+    with only selected features retained.
+    
+    Returns:
+        None (saves reduced DataFrame to CSV file)
+    """
     config_files = ["configs/base.yaml", "configs/preprocessing/feature_reduction.yaml"]
     cfg = load_config(config_files)
 

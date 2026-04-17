@@ -1,6 +1,34 @@
 import tkinter as tk
 
 def select_data_models_tkinter(data_names, model_names):
+    """
+    Display interactive tkinter GUI for selecting training dataset and model type.
+    
+    Presents side-by-side selection interface allowing user to choose both the
+    training dataset (from processed feature sets) and the model architecture.
+    Returns both selections as tuple for downstream model training pipeline.
+    
+    Args:
+        data_names : list
+            List of dataset names (strings) to display in left-side listbox,
+            e.g., ['data_aqme.csv', 'data_mordred.csv', 'data_morgan.csv']
+        model_names : list
+            List of model type names (strings) to display in right-side listbox,
+            e.g., ['XGBModel', 'RFModel', 'GPRModel', 'MLPModel', 'SVRModel']
+    
+    Returns:
+        tuple
+            Two-element tuple containing:
+            - dataset (str): Selected dataset name from data_names
+            - model (str): Selected model name from model_names
+            Returns (None, None) if window is closed without selection
+    
+    Notes:
+        - Two-panel interface: datasets (left, width=100), models (right, width=30)
+        - Both listboxes have height=10
+        - Single-selection mode (exportselection=False prevents default behavior)
+        - User clicks OK to confirm both selections
+    """
     root = tk.Tk()
     root.title("Select Data Model and Training Dataset")
 

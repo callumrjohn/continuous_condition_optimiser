@@ -7,7 +7,16 @@ from src.utils.model_utils import xy_split, select_model_and_data
 from src.guis.data_model_selector import select_data_models_tkinter
 
 def main():
+    """
+    Main entry point for training a machine learning model.
     
+    Launches an interactive GUI for users to select a model and dataset combination.
+    Trains the selected model on the entire dataset and saves it for later use
+    in predictions or validation.
+    
+    Returns:
+        None (saves trained model to file)
+    """
     # Generate model, df of training data plus model name, training dataset name and relevant config
     model, df, model_name, dset_name = select_model_and_data()
 

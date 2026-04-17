@@ -29,7 +29,7 @@ env.bak/
 # Data / Models
 # --------------------------
 #data/
-#*.csv
+*.csv
 *.tsv
 *.xls
 *.xlsx

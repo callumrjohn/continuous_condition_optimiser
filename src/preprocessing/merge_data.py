@@ -8,7 +8,31 @@ from src.guis.fingerprint_selector import select_fingerprints_tkinter
 
 
 def gen_merge_dfs(data, fingerprints, id_col, how='inner', duplicate_selection = 'first', desc_labels=None):
-
+    """
+    Merge experimental data with multiple descriptor/fingerprint DataFrames.
+    
+    Sequentially merges multiple descriptor/fingerprint DataFrames with the main
+    experimental data on a common ID column. Handles duplicate columns that appear
+    in multiple descriptor sets by keeping first, last, or averaging them.
+    
+    Args:
+        data: Main experimental data DataFrame
+        fingerprints: List of descriptor/fingerprint DataFrames to merge
+        id_col: Column name to merge on (present in all DataFrames)
+        how: Type of merge - 'inner', 'outer', 'left', 'right' (default: 'inner')
+        duplicate_selection: How to handle duplicate column names:
+            - 'first': keep first occurrence
+            - 'last': keep last occurrence
+            - 'mean': average values (not yet implemented)
+        desc_labels: Labels for each fingerprint set to append to column names.
+            If None, uses range(len(fingerprints))
+    
+    Returns:
+        Merged DataFrame with data and selected descriptor columns
+    
+    Raises:
+        ValueError: If invalid 'how', 'duplicate_selection', or no fingerprints provided
+    """
     if how not in ['inner', 'outer', 'left', 'right']:
         raise ValueError("Invalid 'how' parameter. Choose from 'inner', 'outer', 'left', or 'right'.")
     
@@ -77,7 +101,16 @@ def remove_no_variance_columns(df):
 
 
 def main():
+    """
+    Main entry point for merging experimental data with descriptor/fingerprint sets.
     
+    Launches an interactive GUI for users to select which descriptor/fingerprint sets
+    to merge together. Optionally removes NaN and no-variance columns. Saves the
+    merged dataset with a descriptive filename.
+    
+    Returns:
+        None (saves merged DataFrame to CSV file)
+    """
     # Load configs
     config_files = ["configs/base.yaml", "configs/preprocessing/merge_data.yaml"]
     cfg = load_config(config_files)

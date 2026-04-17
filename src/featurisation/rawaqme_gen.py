@@ -6,6 +6,37 @@ from aqme.qdescp import qdescp
 from src.utils.config import load_config
 
 def gen_aqme_descriptors(input_path, destination_dir, conformer_gen = 'rdkit', optimisation = 'xtb'):
+    """
+    Generate AQME descriptors through conformer search and quantum mechanical optimization.
+    
+    Orchestrates the AQME pipeline for descriptor generation, which includes: (1) conformer
+    generation using specified method to create 3D structures from SMILES, (2) optimization
+    of generated conformers using specified quantum mechanical or semi-empirical method.
+    Outputs are organized in subdirectories (CSEARCH for conformers, QDESCP for descriptors).
+    
+    Args:
+        input_path : str
+            Path to CSV file with SMILES strings and molecule identifiers in columns
+            named 'SMILES' and 'code_name' respectively
+        destination_dir : str
+            Directory where output files and subdirectories will be created
+        conformer_gen : str, optional
+            Method for conformer generation (default: 'rdkit'). Common options:
+            'rdkit', 'distance_geometry', etc.
+        optimisation : str, optional
+            Semi-empirical or quantum mechanical method for optimization (default: 'xtb').
+            Must be installed separately (XTB, MOPAC, etc.)
+    
+    Returns:
+        None
+        Outputs conformer files in destination_dir/CSEARCH/ and descriptor files in
+        destination_dir/QDESCP/
+    
+    Notes:
+        This is a computationally expensive function that may take significant time
+        depending on the number of molecules and method chosen. Requires external
+        dependencies (XTB or similar installed).
+    """
 
 
     csearch(input=input_path, program=conformer_gen, output=destination_dir)
@@ -19,6 +50,29 @@ def gen_aqme_descriptors(input_path, destination_dir, conformer_gen = 'rdkit', o
         destination=destination_dir)
 
 def main():
+    """
+    Generate raw AQME descriptors from input SMILES file through full optimization pipeline.
+    
+    Loads configuration from YAML files, reads SMILES data from input CSV, validates
+    output directory, prepares formatted input for AQME, and calls gen_aqme_descriptors()
+    to generate conformers and compute quantum mechanical descriptors.
+    
+    The pipeline includes conformer generation and geometry optimization, producing
+    both structural files (.sdf) and computed molecular descriptors.
+    
+    Configuration is loaded from 'configs/base.yaml' and 'configs/featurisation/aqme.yaml'
+    which specify input/output paths, column names, and AQME parameters (conformer
+    generation method, optimization method/software).
+    
+    Returns:
+        None
+        Outputs conformer directories and descriptor files in the AQME output directory
+        and prints confirmation message.
+    
+    Notes:
+        Creates intermediate 'smiles_aqme.csv' file in the output directory with
+        renamed columns compatible with AQME tools (SMILES, code_name).
+    """
     config_files = ["configs/base.yaml", "configs/featurisation/aqme.yaml"]
     cfg = load_config(config_files)
 

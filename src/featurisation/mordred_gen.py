@@ -8,6 +8,31 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def gen_mordred_descriptors(df, smiles_col, id_col, ignore_3D = True, missingVal = None):
+    """
+    Generate Mordred molecular descriptors for molecules from SMILES strings.
+    
+    Args:
+        df : pd.DataFrame
+            Input DataFrame containing SMILES strings and molecule identifiers
+        smiles_col : str
+            Name of the column containing SMILES strings
+        id_col : str
+            Name of the column containing molecule identifiers
+        ignore_3D : bool, optional
+            If True, skip calculation of 3D descriptors (default: True)
+        missingVal : float or None, optional
+            Value to use for invalid SMILES or missing descriptors (default: None)
+    
+    Returns:
+        pd.DataFrame
+            DataFrame with computed Mordred descriptors where the first column is id_col,
+            followed by all descriptor columns. Shape is (n_molecules, n_descriptors + 1)
+    
+    Notes:
+        Invalid SMILES and non-numeric descriptor values are handled gracefully.
+        Warnings are suppressed during descriptor calculation to avoid verbosity.
+        The output maintains the same row order as the input DataFrame.
+    """
 
     calc = Calculator(descriptors, ignore_3D=ignore_3D)
     desc_names = [str(desc) for desc in calc.descriptors]
@@ -35,6 +60,21 @@ def gen_mordred_descriptors(df, smiles_col, id_col, ignore_3D = True, missingVal
 
 
 def main():
+    """
+    Generate Mordred descriptors from input SMILES file and save to CSV.
+    
+    Loads configuration from YAML files, reads SMILES data from input CSV,
+    generates Mordred descriptors using gen_mordred_descriptors(), and saves
+    the resulting feature matrix to the specified output path.
+    
+    Configuration is loaded from 'configs/base.yaml' and 'configs/featurisation/mordred.yaml'
+    which specify input/output paths and descriptor generation parameters (ignore_3D,
+    missingVal).
+    
+    Returns:
+        None
+        Outputs a CSV file with Mordred descriptors and prints the output path.
+    """
     
     # Load configs
     config_files = ["configs/base.yaml", "configs/featurisation/mordred.yaml"]

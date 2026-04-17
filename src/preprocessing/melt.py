@@ -1,6 +1,27 @@
 import pandas as pd
 
 def melt_data_df(df, id_vars, var_name = 'variable', value_name = 'value', drop_nan = True):
+    """
+    Reshape DataFrame from wide to long format (unpivot operation).
+    
+    Converts a DataFrame from wide format (multiple columns representing variables)
+    to long format (one row per variable value). Optionally removes NaN values
+    and converts variable and value columns to numeric types.
+    
+    Args:
+        df: Input DataFrame in wide format
+        id_vars: List of column names to use as identifier variables (not melted)
+        var_name: Name for the new variable column (default: 'variable')
+        value_name: Name for the new value column (default: 'value')
+        drop_nan: Whether to remove rows with NaN values in value_name column (default: True)
+    
+    Returns:
+        DataFrame in long format with columns: id_vars, var_name, and value_name
+    
+    Notes:
+        - var_name column is converted to float if possible, otherwise left as-is
+        - value_name column is always converted to float
+    """
     # Reshape the DataFrame to long format
     long_df = df.melt(
         id_vars = id_vars,

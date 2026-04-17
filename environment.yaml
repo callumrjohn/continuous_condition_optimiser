@@ -1,0 +1,21 @@
+name: continuous-prediction
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy==1.26.4
+  - pandas==2.2.2
+  - scipy==1.15.2
+  - scikit-learn==1.6.1
+  - xgboost==3.0.2
+  - pyyaml==6.0.2
+  - rdkit==2024.03.3
+  - openbabel==3.1.1
+  - pytest
+  - jupyter
+  - pip:
+    - aqme==1.6.1
+    - gauche
+    - tensorflow==2.18.1

@@ -3,6 +3,35 @@ import tkinter as tk
 
 
 def select_fingerprints_tkinter(fingerprint_names):
+    """
+    Display interactive tkinter GUI for selecting and prioritizing fingerprints/descriptors.
+    
+    Presents a list of available molecular descriptor/fingerprint types with interface
+    to select multiple descriptors, reorder their priority, and confirm selection.
+    Returns indices of selected fingerprints in user-specified priority order. 
+    
+    Args:
+        fingerprint_names : list or array-like
+            List of fingerprint/descriptor type names (strings) to display,
+            e.g., ['Morgan', 'ECFp', 'Mordred', 'AQME', 'Custom']
+    
+    Returns:
+        list
+            List of indices (integers) corresponding to selected fingerprints
+            in the order specified by the user. Index values reference positions
+            in the original fingerprint_names list
+    
+    Raises:
+        SystemExit
+            If user clicks Cancel button, program exits with message
+            "Fingerprint selection cancelled by user."
+    
+    Notes:
+        - Multiple selection enabled (Ctrl+Click to select multiple items)
+        - Up/Down buttons allow reordering selected fingerprints by priority
+        - Priority order is preserved in returned indices
+        - Extended selection mode allows arbitrary ordering
+    """
     selected = []
     cancelled = [False]
 

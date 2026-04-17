@@ -1,6 +1,30 @@
 import tkinter as tk
 
 def select_input_data_tkinter(data_names):
+    """
+    Display interactive tkinter GUI to select a training dataset.
+    
+    Presents a list of available datasets for the user to select via mouse
+    clicking. Single-selection interface returns the chosen dataset name to
+    the calling function.
+    
+    Args:
+        data_names : list
+            List of dataset names (strings) to display in the selection list.
+            Should include descriptive names like 'data_aqme.csv' or
+            'data_aqme_custom_fragprints_mordred_rdkit_morgan.csv'
+    
+    Returns:
+        str or None
+            The name of the selected dataset if user clicks OK, or None
+            if the window is closed without selection
+    
+    Notes:
+        - GUI uses tkinter Listbox widget with height=10, width=30
+        - First item is automatically selected by default
+        - User can only select one dataset at a time
+        - Window remains open until OK button is clicked or window is closed
+    """
     root = tk.Tk()
     root.title("Select dataset for dimensionality reduction")
 
