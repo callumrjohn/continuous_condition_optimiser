@@ -28,7 +28,7 @@ env.bak/
 # --------------------------
 # Data / Models
 # --------------------------
-#data/
+data/
 *.csv
 *.tsv
 *.xls
@@ -40,6 +40,7 @@ env.bak/
 *.h5
 *.pkl
 *.joblib
+*.ipynb
 
 # --------------------------
 # Logs / Debugging
