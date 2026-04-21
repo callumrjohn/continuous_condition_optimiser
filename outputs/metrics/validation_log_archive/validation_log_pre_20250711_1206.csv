@@ -1,2 +1,0 @@
-model,datset,val_method,timestamp,mean_mse,mean_mae,mean_r2,mean_accuracy,mean_precision,mean_overlap,mean_recall,midpoint_hit_rate,max_hit_rate
-xgbmodel,data_rdkit,leave_one_out,11-07-2025_12.04,2303.4402082007337,38.35611152216526,-239.68971038184654,0.7088708951866847,0.6001387012557797,0.38565265457714754,0.4119584122580502,0.39285714285714285,0.39285714285714285
