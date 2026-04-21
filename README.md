@@ -1,103 +1,96 @@
-# Halogenation Condition Prediction
+# Continuous Condition Optimiser
 
-This research project aims to predict optimal acidic reaction conditions for the C(sp<sup>2</sup>)–H chlorination, bromination, and iodination of pharmaceutical compounds using machine learning.
-
-## Overview
-
-Given:
-- The SMILES representation of a pharmaceutical compound
-- The desired halogenation reaction type
-
-The model predicts:
-- Optimum reaction conditions with respect to acitity (the number of TFA equivalents in HFIP at 0.1 M)
-
-## Motivation
-
-Halogenation is a key transformation in pharmaceutical synthesis. Using a high-throughput workflow, we have generate a dataset comprising 31 pharmaceutical compounds with three halogenations performed at a range of acidities. This project leverages machine learning and the dataset to predict high-yeidling conditions for a given unscreened pharmacetucial halogenation, reducing the need for acidity screening.
+Screening framework for featurisation methods and machine learning model architectures to predict optimum ranges of continuous reaction parameters from experimental datasets.
 
 ## Features
 
-- Input: SMILES string of a pharmaceutical, halogenation type
-- Output: Predicted reaction conditions
-- Trained on a reaction dataset curated using HTE
-
-## Usage
-
-1. Prepare input data (SMILES, reaction type)
-2. Run the prediction model
-3. Obtain recommended conditions, with an acid/yield response curve generated
+- **Featurisation Methods**: Support for AQME, Custom, Fragprints, Mordred, Morgan fingerprints, and RDKit descriptors
+- **Model Architectures**: Benchmark multiple ML models including Gaussian Process, MLP, Random Forest, SVM, and XGBoost
+- **Preprocessing Pipeline**: Automated feature reduction, data transformation, and merging
+- **Metrics & Validation**: Comprehensive performance evaluation and optimum region assessment
 
 ## Installation
 
 ```bash
-git clone https://github.com/callumrjohn/halogenation_condition_prediction.git
-cd halogenation_condition_prediction
-```
-
-```bash
-# Install dependencies
 pip install -r requirements.txt
 ```
-or
+
+## Workflow
+
+### 1. Generate Molecular Descriptors
+Generate descriptors/fingerprints from SMILES strings using your preferred featurisation method:
 
 ```bash
-# Install dependencies
-conda install --yes --file requirements.txt
+python -m src.featurisation.morgan_gen
+python -m src.featurisation.rdkit_gen
+# Or other featurisation methods: aqme_gen, custom_gen, fragprint_gen, mordred_gen
 ```
-If generating AQME descriptors, must be run in MacOS of Linux enviroment due to OpenBabel
 
-## Note on Mordred Descriptors
+Configure input/output paths and parameters in `configs/featurisation/*.yaml`.
 
-Due to module depreciation, Mordred descriptor generation must be performed in a seperate environment using a previous version of python and modules
+### 2. Merge Descriptors with Experimental Data
+Combine selected descriptor sets with experimental reaction data:
 
 ```bash
-# Install dependencies
-conda create -n mordred_gen python=3.8
+python -m src.preprocessing.merge_data
 ```
 
-then install the Mordred package...
+A GUI will prompt you to select which descriptor sets to combine. The script outputs a CSV with merged features and experimental values (e.g., yield, reagent equivalents).
+
+### 3. Optional: Feature Reduction
+Reduce feature dimensionality using PCA or RFE to improve model performance:
 
 ```bash
-conda activate mordred_gen
-conda install -c rdkit -c mordred-descriptor mordred
+python -m src.preprocessing.feature_reduction
 ```
 
-then downgrade Numpy and NetworkX...
+Configure the reduction method and parameters in `configs/preprocessing/feature_reduction.yaml`.
+
+### 4. Extract Experimental Optimum Regions
+Derive reference optimum regions from the experimental dataset for validation metrics:
 
 ```bash
-conda install numpy=1.23 networkx=2.3
-conda install pyyaml # if required
+python -m src.metrics.get_optimums
 ```
 
-Alternatively, there is a community-maintained version available for installation, which claims to fix many of these discrepancies...
+Analyses yield curves to identify high-performing parameter ranges. Output is used for custom metrics during model evaluation.
+
+### 5. Validate Model
+Evaluate a selected model architecture on a selected dataset using cross-validation:
 
 ```bash
-conda install mordredcommunity # change import boilerplates accordingly...
+python -m src.models.validate_model
 ```
 
-## Running Predictions
+A GUI will prompt you to select:
+- Model architecture (GP, MLP, RF, SVM, XGBoost, etc.)
+- Dataset
 
-```python
-from predictor import predict_conditions
+The validation method (leave-one-out or k-fold) is configured in `configs/models/validate_model.yaml`.
 
-smiles = "CC1=C(C2=C(N1C(C3=CC=C(Cl)C=C3)=O)C=CC(OC)=C2)CC(O)=O" # Indomethacin
-reaction_type = "iodination"
-conditions = predict_conditions(smiles, reaction_type)
-print(conditions)
-```
+The script outputs:
+- **Per-fold metrics**: CSV with MSE, MAE, R², and custom metrics for each fold
+- **Overall evaluation**: Summary statistics aggregated across all folds
+- **Validation log**: Updated tracking file of all validation runs
 
-## Data
+## Configuration
 
-- The dataset was generated experimentally using an automated screening platform developed alongside this researach, comprising data from the halogenation of 31 pharmaceutical compounds using 3 halogenating 
-- Preprocessing scripts included
+All pipeline stages are configured via YAML files in `configs/`:
+- `base.yaml` - Global settings (paths, column names)
+- `featurisation/*.yaml` - Descriptor generation parameters
+- `preprocessing/*.yaml` - Data merging and feature reduction
+- `metrics/*.yaml` - Threshold and interpolation settings
+- `models/*.yaml` - Model selection and validation parameters
 
-## Contributing
+## Project Structure
 
-Contributions are welcome! Please open issues or submit pull requests.
+- `src/` - Main pipeline code (featurisation, models, preprocessing, metrics)
+- `configs/` - YAML configuration files for all pipeline stages
+- `data/` - Input experimental data and processed features
+- `outputs/` - Generated descriptors, trained models, and validation results
+- `tests/` - Test suite for all modules
 
 ## License
 
 BSD-3-Clause
-
-## Contact
 
