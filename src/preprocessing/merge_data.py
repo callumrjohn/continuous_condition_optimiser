@@ -174,5 +174,5 @@ def main():
     merged_df.to_csv(output_path, index=False)
 
 
-if __name__ in "__main__":
+if __name__ == "__main__":
     main()
