@@ -1,10 +1,10 @@
 # Continuous Condition Optimiser
 
-Screening framework for featurisation methods and machine learning model architectures to predict optimum ranges of continuous reaction parameters from experimental datasets.
+Screening framework for chemical featurisation methods from SMILES and machine learning model architectures to predict optimum ranges of continuous reaction parameters from experimental datasets.
 
 ## Features
 
-- **Featurisation Methods**: Support for AQME, Custom, Fragprints, Mordred, Morgan fingerprints, and RDKit descriptors
+- **Chemical Featurisation Methods**: Support for AQME, Custom, Fragprints, Mordred, Morgan fingerprints, and RDKit descriptors
 - **Model Architectures**: Benchmark multiple ML models including Gaussian Process, MLP, Random Forest, SVM, and XGBoost
 - **Preprocessing Pipeline**: Automated feature reduction, data transformation, and merging
 - **Metrics & Validation**: Comprehensive performance evaluation and optimum region assessment
